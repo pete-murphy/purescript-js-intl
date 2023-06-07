@@ -39,7 +39,7 @@ test_DateTimeFormat = do
     , expected: [ "en-US", "es-MX" ]
     }
 
-  format <- DateTimeFormat.new_ [ "en-US" ]
+  format <- DateTimeFormat.new [ "en-US" ] { timeZone: "UTC" }
   let
     mkDate :: { month :: Number, day :: Number, year :: Number } -> JSDate
     mkDate = JSDate.jsdate <<< Record.merge
@@ -119,7 +119,7 @@ test_DateTimeFormat = do
         { locale: "en-US"
         , calendar: "gregory"
         , numberingSystem: "latn"
-        , timeZone: "America/New_York"
+        , timeZone: "UTC"
         , year: "numeric"
         , month: "numeric"
         , day: "numeric"
