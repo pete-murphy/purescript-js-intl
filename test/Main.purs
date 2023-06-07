@@ -12,12 +12,14 @@ import Record as Record
 import Test.Assert as Test
 import Web.Intl.DateTimeFormat as DateTimeFormat
 import Web.Intl.NumberFormat as NumberFormat
+import Web.Intl.PluralRules as PluralRules
 import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
 
 main :: Effect Unit
 main = do
   test_DateTimeFormat
   test_NumberFormat
+  test_PluralRules
   test_RelativeTimeFormat
 
 test_DateTimeFormat :: Effect Unit
@@ -218,6 +220,39 @@ test_NumberFormat = do
 --         <#> \part -> part { value = String.trim part.value }
 --   }
 
+test_PluralRules :: Effect Unit
+test_PluralRules = do
+  Console.log "PluralRules.supportedLocalesOf"
+  Test.assertEqual
+    { actual: PluralRules.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    , expected: [ "en-US" ]
+    }
+
+  Console.log "PluralRules.supportedLocalesOf_"
+  Test.assertEqual
+    { actual: PluralRules.supportedLocalesOf_ [ "en-US" ]
+    , expected: [ "en-US" ]
+    }
+
+  pluralRules <- PluralRules.new [ "en-US" ] { type: "ordinal" }
+
+  Console.log "PluralRules##select"
+  Test.assertEqual
+    { actual: PluralRules.select pluralRules 1
+    , expected: "one"
+    }
+
+  Console.log "PluralRules##resolvedOptions"
+  resolvedOptions <- PluralRules.resolvedOptions pluralRules
+  Test.assertEqual
+    { actual: resolvedOptions
+    , expected:
+        { locale: "en"
+        , pluralCategories: [ "few", "one", "two", "other" ]
+        , type: "ordinal"
+        }
+    }
+
 test_RelativeTimeFormat :: Effect Unit
 test_RelativeTimeFormat = do
   Console.log "RelativeTimeFormat.supportedLocalesOf"
@@ -234,7 +269,7 @@ test_RelativeTimeFormat = do
 
   format <- RelativeTimeFormat.new [ "en-US" ] { numeric: "auto" }
 
-  Console.logShow "RelativeTimeFormat##format"
+  Console.log "RelativeTimeFormat##format"
   Test.assertEqual
     { actual: RelativeTimeFormat.format format (-1) "day"
     , expected: "yesterday"
