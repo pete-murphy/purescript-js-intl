@@ -6,7 +6,6 @@ import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Effect (Effect)
 import Effect.Class.Console as Console
-import Foreign.Object as Foreign.Object
 import Record as Record
 import Test.Assert as Test
 import Web.Intl.DateTimeFormat as DateTimeFormat
@@ -76,15 +75,14 @@ main = do
       ]
 
   Console.log "DateTimeFormat##resolvedOptions"
-  Test.assert =<< do
-    DateTimeFormat.resolvedOptions format <#>
-      ( _ == Foreign.Object.fromHomogeneous
-          { locale: "en-US"
-          , calendar: "gregory"
-          , numberingSystem: "latn"
-          , timeZone: "America/New_York"
-          , year: "numeric"
-          , month: "numeric"
-          , day: "numeric"
-          }
-      )
+  resolvedOptions <- DateTimeFormat.resolvedOptions format
+  Test.assert do
+    resolvedOptions ==
+      { locale: "en-US"
+      , calendar: "gregory"
+      , numberingSystem: "latn"
+      , timeZone: "America/New_York"
+      , year: "numeric"
+      , month: "numeric"
+      , day: "numeric"
+      }

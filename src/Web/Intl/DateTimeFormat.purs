@@ -23,7 +23,6 @@ import Data.JSDate (JSDate)
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
-import Foreign.Object (Object)
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.LocaleOptions (LocaleOptions)
@@ -126,11 +125,20 @@ foreign import _formatToParts
 formatToParts :: DateTimeFormat -> JSDate -> Array { type :: String, value :: String }
 formatToParts = Function.Uncurried.runFn2 _formatToParts
 
+type ResolvedOptions =
+  { locale :: String
+  , calendar :: String
+  , numberingSystem :: String
+  , timeZone :: String
+  , year :: String
+  , month :: String
+  , day :: String
+  }
+
 foreign import _resolvedOptions
   :: EffectFn1
        DateTimeFormat
-       -- TODO: Better type here
-       (Object String)
+       ResolvedOptions
 
-resolvedOptions :: DateTimeFormat -> Effect (Object String)
+resolvedOptions :: DateTimeFormat -> Effect ResolvedOptions
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions
