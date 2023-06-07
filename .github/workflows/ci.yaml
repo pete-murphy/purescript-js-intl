@@ -20,7 +20,7 @@ jobs:
         with:
           purescript: "0.15.9"
           purs-tidy: "0.10.0"
-          psa: "1.0.0"
+          psa: "0.8.2"
           spago: "0.21.0"
 
       - name: Cache PureScript dependencies
@@ -44,11 +44,9 @@ jobs:
         run: |
           spago build --purs-args "--censor-lib --strict"
 
-      # TODO: Separate test dependencies
-      # spago -x test.dhall test
       - name: Run tests
         run: |
-          spago test
+          spago -x test.dhall test
 
       - name: Check Formatting
         run: |
