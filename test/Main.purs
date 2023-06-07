@@ -12,11 +12,13 @@ import Record as Record
 import Test.Assert as Test
 import Web.Intl.DateTimeFormat as DateTimeFormat
 import Web.Intl.NumberFormat as NumberFormat
+import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
 
 main :: Effect Unit
 main = do
   test_DateTimeFormat
   test_NumberFormat
+  test_RelativeTimeFormat
 
 test_DateTimeFormat :: Effect Unit
 test_DateTimeFormat = do
@@ -215,3 +217,45 @@ test_NumberFormat = do
 --       ]
 --         <#> \part -> part { value = String.trim part.value }
 --   }
+
+test_RelativeTimeFormat :: Effect Unit
+test_RelativeTimeFormat = do
+  Console.log "RelativeTimeFormat.supportedLocalesOf"
+  Test.assertEqual
+    { actual: RelativeTimeFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    , expected: [ "en-US" ]
+    }
+
+  Console.log "RelativeTimeFormat.supportedLocalesOf_"
+  Test.assertEqual
+    { actual: RelativeTimeFormat.supportedLocalesOf_ [ "en-US" ]
+    , expected: [ "en-US" ]
+    }
+
+  format <- RelativeTimeFormat.new [ "en-US" ] { numeric: "auto" }
+
+  Console.logShow "RelativeTimeFormat##format"
+  Test.assertEqual
+    { actual: RelativeTimeFormat.format format (-1) "day"
+    , expected: "yesterday"
+    }
+
+  Console.log "RelativeTimeFormat##formatToParts"
+  Test.assertEqual
+    { actual: RelativeTimeFormat.formatToParts format (-1) "day"
+    , expected:
+        [ { type: "literal", value: "yesterday" }
+        ]
+    }
+
+  Console.log "RelativeTimeFormat##resolvedOptions"
+  resolvedOptions <- RelativeTimeFormat.resolvedOptions format
+  Test.assertEqual
+    { actual: resolvedOptions
+    , expected:
+        { locale: "en-US"
+        , numberingSystem: "latn"
+        , numeric: "auto"
+        , style: "long"
+        }
+    }
