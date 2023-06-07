@@ -11,10 +11,12 @@ import Effect.Class.Console as Console
 import Record as Record
 import Test.Assert as Test
 import Web.Intl.DateTimeFormat as DateTimeFormat
+import Web.Intl.NumberFormat as NumberFormat
 
 main :: Effect Unit
 main = do
   test_DateTimeFormat
+  test_NumberFormat
 
 test_DateTimeFormat :: Effect Unit
 test_DateTimeFormat = do
@@ -125,3 +127,91 @@ test_DateTimeFormat = do
         , day: "numeric"
         }
     }
+
+test_NumberFormat :: Effect Unit
+test_NumberFormat = do
+  Console.log "NumberFormat.supportedLocalesOf"
+  Test.assertEqual
+    { actual: NumberFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    , expected: [ "en-US" ]
+    }
+
+  Console.log "NumberFormat.supportedLocalesOf_"
+  Test.assertEqual
+    { actual: NumberFormat.supportedLocalesOf_ [ "en-US" ]
+    , expected: [ "en-US" ]
+    }
+
+  format <- NumberFormat.new [ "en-US" ] { style: "currency", currency: "USD" }
+
+  Console.log "NumberFormat##format"
+  Test.assertEqual
+    { actual: NumberFormat.format format 123456.789
+    , expected: "$123,456.79"
+    }
+
+  Console.log "NumberFormat##formatToParts"
+  Test.assertEqual
+    { actual: NumberFormat.formatToParts format 123456.789
+    , expected:
+        [ { type: "currency", value: "$" }
+        , { type: "integer", value: "123" }
+        , { type: "group", value: "," }
+        , { type: "integer", value: "456" }
+        , { type: "decimal", value: "." }
+        , { type: "fraction", value: "79" }
+        ]
+    }
+
+  Console.log "NumberFormat##resolvedOptions"
+  resolvedOptions <- NumberFormat.resolvedOptions format
+
+  Test.assertEqual
+    { actual: resolvedOptions
+    , expected:
+        { locale: "en-US"
+        , numberingSystem: "latn"
+        , style: "currency"
+        , currency: "USD"
+        , currencyDisplay: "symbol"
+        , useGrouping: true
+        , minimumIntegerDigits: 1
+        , minimumFractionDigits: 2
+        , maximumFractionDigits: 2
+        , currencySign: "standard"
+        , notation: "standard"
+        , signDisplay: "auto"
+        }
+    }
+
+-- TODO: Not yet supported in Node
+
+-- Console.log "NumberFormat##formatRange"
+-- Test.assertEqual
+--   { actual: NumberFormat.formatRange format 123456.789 987654.321
+--       # String.replaceAll (Pattern "\x2009") (Replacement " ")
+--   , expected: "$123,456.79–$987,654.32"
+--       # String.replaceAll (Pattern "\x2009") (Replacement " ")
+--   }
+
+-- Console.log "NumberFormat##formatRangeToParts"
+-- Test.assertEqual
+--   { actual: NumberFormat.formatRangeToParts format 123456.789 987654.321
+--       <#> \part -> part { value = String.trim part.value }
+--   , expected:
+--       [ { type: "currency", value: "$" }
+--       , { type: "integer", value: "123" }
+--       , { type: "group", value: "," }
+--       , { type: "integer", value: "456" }
+--       , { type: "decimal", value: "." }
+--       , { type: "fraction", value: "79" }
+--       , { type: "literal", value: "–" }
+--       , { type: "currency", value: "$" }
+--       , { type: "integer", value: "987" }
+--       , { type: "group", value: "," }
+--       , { type: "integer", value: "654" }
+--       , { type: "decimal", value: "." }
+--       , { type: "fraction", value: "32" }
+--       ]
+--         <#> \part -> part { value = String.trim part.value }
+--   }
