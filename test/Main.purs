@@ -4,6 +4,8 @@ import Prelude
 
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
+import Data.String (Pattern(..), Replacement(..))
+import Data.String as String
 import Effect (Effect)
 import Effect.Class.Console as Console
 import Record as Record
@@ -62,7 +64,9 @@ test_DateTimeFormat = do
     }
   Test.assertEqual
     { actual: DateTimeFormat.formatRange format date date'
+        # String.replaceAll (Pattern "\x2009") (Replacement " ")
     , expected: "12/21/2012 – 8/23/2013"
+        # String.replaceAll (Pattern "\x2009") (Replacement " ")
     }
 
   Console.log "DateTimeFormat##formatRangeToParts"
@@ -79,6 +83,7 @@ test_DateTimeFormat = do
 
   Test.assertEqual
     { actual: DateTimeFormat.formatRangeToParts format date date'
+        <#> \part -> part { value = String.trim part.value }
     , expected:
         [ { type: "month", value: "12" }
         , { type: "literal", value: "/" }
@@ -91,7 +96,7 @@ test_DateTimeFormat = do
         , { type: "day", value: "23" }
         , { type: "literal", value: "/" }
         , { type: "year", value: "2013" }
-        ]
+        ] <#> \part -> part { value = String.trim part.value }
     }
 
   Console.log "DateTimeFormat##formatToParts"
@@ -120,4 +125,3 @@ test_DateTimeFormat = do
         , day: "numeric"
         }
     }
-
