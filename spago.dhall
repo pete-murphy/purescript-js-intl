@@ -1,21 +1,8 @@
 { name = "web-intl"
 , dependencies =
-  [ "assert"
-  , "console"
-  , "convertable-options"
-  , "datetime"
-  , "debug"
-  , "effect"
-  , "foreign-object"
-  , "functions"
-  , "js-date"
-  , "maybe"
-  , "nullable"
-  , "prelude"
-  , "record"
-  , "transformers"
-  , "unsafe-coerce"
-  ]
+  [ "effect", "functions", "js-date", "prelude", "unsafe-coerce" ]
 , packages = ./packages.dhall
-, sources = [ "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs" ]
+, license = "MIT"
+, repository = "https://github.com/ptrfrncsmrph/purescript-web-intl.git"
 }
