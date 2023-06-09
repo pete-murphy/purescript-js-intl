@@ -15,6 +15,7 @@ import Test.Assert.Extended as Test
 import Web.Intl as Intl
 import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
+import Web.Intl.ListFormat as ListFormat
 import Web.Intl.NumberFormat as NumberFormat
 import Web.Intl.PluralRules as PluralRules
 import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
@@ -25,6 +26,7 @@ main = do
 
   test_Collator
   test_DateTimeFormat
+  test_ListFormat
   test_NumberFormat
   test_PluralRules
   test_RelativeTimeFormat
@@ -267,6 +269,51 @@ test_DateTimeFormat = do
         , year: "numeric"
         , month: "numeric"
         , day: "numeric"
+        }
+    }
+
+test_ListFormat :: Effect Unit
+test_ListFormat = do
+  Console.log "List.supportedLocalesOf"
+  Test.assertEqual
+    { actual: ListFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    , expected: [ "en-US" ]
+    }
+
+  Console.log "List.supportedLocalesOf_"
+  Test.assertEqual
+    { actual: ListFormat.supportedLocalesOf_ [ "en-US" ]
+    , expected: [ "en-US" ]
+    }
+
+  format <- ListFormat.new [ "en-US" ] { style: "long", type: "conjunction" }
+
+  Console.log "ListFormat##format"
+  Test.assertEqual
+    { actual: ListFormat.format format [ "foo", "bar", "baz" ]
+    , expected: "foo, bar, and baz"
+    }
+
+  Console.log "ListFormat##formatToParts"
+  Test.assertEqual
+    { actual: ListFormat.formatToParts format [ "foo", "bar", "baz" ]
+    , expected:
+        [ { type: "element", value: "foo" }
+        , { type: "literal", value: ", " }
+        , { type: "element", value: "bar" }
+        , { type: "literal", value: ", and " }
+        , { type: "element", value: "baz" }
+        ]
+    }
+
+  Console.log "ListFormat##resolvedOptions"
+  resolvedOptions <- ListFormat.resolvedOptions format
+  Test.assertEqual
+    { actual: resolvedOptions
+    , expected:
+        { locale: "en-US"
+        , type: "conjunction"
+        , style: "long"
         }
     }
 
