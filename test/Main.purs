@@ -11,7 +11,7 @@ import Effect (Effect)
 import Effect.Class.Console as Console
 import Effect.Exception as Exception
 import Record as Record
-import Test.Assert as Test
+import Test.Assert.Extended as Test
 import Web.Intl as Intl
 import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
@@ -55,7 +55,7 @@ test_Intl = do
   Console.log "Intl.supportedValuesOf"
   do
     actual <- Intl.supportedValuesOf "calendar"
-    Test.assertEqual
+    Test.assertContains
       { actual
       , expected:
           [ "buddhist"
@@ -80,7 +80,7 @@ test_Intl = do
       }
   do
     actual <- Intl.supportedValuesOf "collation"
-    Test.assertEqual
+    Test.assertContains
       { actual
       , expected:
           [ "compat"

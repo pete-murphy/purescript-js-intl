@@ -9,6 +9,7 @@ in      conf
               , "effect"
               , "either"
               , "exceptions"
+              , "foldable-traversable"
               , "functions"
               , "js-date"
               , "prelude"
