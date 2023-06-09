@@ -24,6 +24,8 @@ import Effect.Uncurried as Effect.Uncurried
 import Prelude (compare) as Prelude
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Internal.ToLocaleArg (class ToLocaleArg, LocaleArg)
+import Web.Intl.Internal.ToLocaleArg as LocaleArg
 
 foreign import data Collator :: Type
 
@@ -39,18 +41,19 @@ type CollatorOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array LocaleArg)
        (Record CollatorOptions)
        Collator
 
 new
-  :: forall options options'
-   . Union options options' CollatorOptions
-  => Array String
+  :: forall locale options options'
+   . ToLocaleArg locale
+  => Union options options' CollatorOptions
+  => Array locale
   -> Record options
   -> Effect Collator
 new locales options =
-  Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
+  Effect.Uncurried.runEffectFn2 _new (LocaleArg.to <$> locales) (Unsafe.Coerce.unsafeCoerce options)
 
 new_
   :: Array String
