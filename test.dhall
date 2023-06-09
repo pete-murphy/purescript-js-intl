@@ -5,7 +5,10 @@ in      conf
               conf.dependencies
             # [ "assert"
               , "console"
+              , "debug"
               , "effect"
+              , "either"
+              , "exceptions"
               , "functions"
               , "js-date"
               , "prelude"

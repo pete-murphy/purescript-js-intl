@@ -2,14 +2,18 @@ module Test.Main where
 
 import Prelude
 
+import Data.Either (Either(..))
+import Data.Either as Either
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
 import Effect.Class.Console as Console
+import Effect.Exception as Exception
 import Record as Record
 import Test.Assert as Test
+import Web.Intl as Intl
 import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
 import Web.Intl.NumberFormat as NumberFormat
@@ -18,11 +22,89 @@ import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
 
 main :: Effect Unit
 main = do
+  test_Intl
+
   test_Collator
   test_DateTimeFormat
   test_NumberFormat
   test_PluralRules
   test_RelativeTimeFormat
+
+test_Intl :: Effect Unit
+test_Intl = do
+  Console.log "Intl.getCanonicalLocales"
+  do
+    actual <- Intl.getCanonicalLocales [ "EN-US" ]
+    Test.assertEqual
+      { actual
+      , expected: [ "en-US" ]
+      }
+  do
+    actual <- Intl.getCanonicalLocales [ "EN-US", "Fr" ]
+    Test.assertEqual
+      { actual
+      , expected: [ "en-US", "fr" ]
+      }
+  do
+    actual <- Exception.catchException (pure <<< Left <<< Exception.name) do
+      Right <$> Intl.getCanonicalLocales [ "EN_US" ]
+    Test.assertEqual
+      { actual
+      , expected: Left "RangeError"
+      }
+
+  Console.log "Intl.supportedValuesOf"
+  do
+    actual <- Intl.supportedValuesOf "calendar"
+    Test.assertEqual
+      { actual
+      , expected:
+          [ "buddhist"
+          , "chinese"
+          , "coptic"
+          , "dangi"
+          , "ethioaa"
+          , "ethiopic"
+          , "gregory"
+          , "hebrew"
+          , "indian"
+          , "islamic"
+          , "islamic-civil"
+          , "islamic-rgsa"
+          , "islamic-tbla"
+          , "islamic-umalqura"
+          , "iso8601"
+          , "japanese"
+          , "persian"
+          , "roc"
+          ]
+      }
+  do
+    actual <- Intl.supportedValuesOf "collation"
+    Test.assertEqual
+      { actual
+      , expected:
+          [ "compat"
+          , "dict"
+          , "emoji"
+          , "eor"
+          , "phonebk"
+          , "phonetic"
+          , "pinyin"
+          , "searchjl"
+          , "stroke"
+          , "trad"
+          , "unihan"
+          , "zhuyin"
+          ]
+      }
+  do
+    actual <- Exception.catchException (pure <<< Left <<< Exception.name) do
+      Right <$> Intl.supportedValuesOf "someInvalidKey"
+    Test.assertEqual
+      { actual
+      , expected: Left "RangeError"
+      }
 
 test_Collator :: Effect Unit
 test_Collator = do
