@@ -3,7 +3,6 @@ module Test.Main where
 import Prelude
 
 import Data.Either (Either(..))
-import Data.Either as Either
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Data.String (Pattern(..), Replacement(..))

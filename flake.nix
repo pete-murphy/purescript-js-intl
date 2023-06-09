@@ -21,7 +21,6 @@
             easy-ps.purs-tidy
             easy-ps.purescript-language-server
             pkgs.nodejs
-            pkgs.nodePackages.nodemon
             pkgs.dhall-lsp-server
             pkgs.esbuild
           ];
