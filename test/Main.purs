@@ -10,6 +10,7 @@ import Effect (Effect)
 import Effect.Class.Console as Console
 import Record as Record
 import Test.Assert as Test
+import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
 import Web.Intl.NumberFormat as NumberFormat
 import Web.Intl.PluralRules as PluralRules
@@ -17,10 +18,67 @@ import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
 
 main :: Effect Unit
 main = do
+  test_Collator
   test_DateTimeFormat
   test_NumberFormat
   test_PluralRules
   test_RelativeTimeFormat
+
+test_Collator :: Effect Unit
+test_Collator = do
+  Console.log "Collator.supportedLocalesOf"
+  Test.assertEqual
+    { actual: Collator.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    , expected: [ "en-US" ]
+    }
+
+  Test.assertEqual
+    { actual: Collator.supportedLocalesOf [ "en-US", "es-MX" ] { localeMatcher: "best fit" }
+    , expected: [ "en-US", "es-MX" ]
+    }
+
+  Console.log "Collator.supportedLocalesOf_"
+  Test.assertEqual
+    { actual: Collator.supportedLocalesOf_ [ "en-US" ]
+    , expected: [ "en-US" ]
+    }
+  Test.assertEqual
+    { actual: Collator.supportedLocalesOf_ [ "en-US", "es-MX" ]
+    , expected: [ "en-US", "es-MX" ]
+    }
+
+  collator <- Collator.new [ "en-US" ] { sensitivity: "base" }
+
+  Console.log "Collator##compare"
+  Test.assertEqual
+    { actual: Collator.compare collator "a" "b"
+    , expected: LT
+    }
+
+  Test.assertEqual
+    { actual: Collator.compare collator "a" "a"
+    , expected: EQ
+    }
+
+  Test.assertEqual
+    { actual: Collator.compare collator "b" "a"
+    , expected: GT
+    }
+
+  Console.log "Collator##resolvedOptions"
+  resolvedOptions <- Collator.resolvedOptions collator
+  Test.assertEqual
+    { actual: resolvedOptions
+    , expected:
+        { locale: "en-US"
+        , usage: "sort"
+        , sensitivity: "base"
+        , ignorePunctuation: false
+        , collation: "default"
+        , numeric: false
+        , caseFirst: "false"
+        }
+    }
 
 test_DateTimeFormat :: Effect Unit
 test_DateTimeFormat = do
@@ -29,7 +87,6 @@ test_DateTimeFormat = do
     { actual: DateTimeFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
-
   Test.assertEqual
     { actual: DateTimeFormat.supportedLocalesOf [ "en-US", "es-MX" ] { localeMatcher: "best fit" }
     , expected: [ "en-US", "es-MX" ]
