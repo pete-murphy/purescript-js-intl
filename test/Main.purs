@@ -15,6 +15,7 @@ import Test.Assert.Extended as Test
 import Web.Intl as Intl
 import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
+import Web.Intl.DisplayNames as DisplayNames
 import Web.Intl.ListFormat as ListFormat
 import Web.Intl.Locale as Locale
 import Web.Intl.NumberFormat as NumberFormat
@@ -27,6 +28,7 @@ main = do
 
   test_Collator
   test_DateTimeFormat
+  test_DisplayNames
   test_ListFormat
   test_Locale
   test_NumberFormat
@@ -272,6 +274,22 @@ test_DateTimeFormat = do
         , month: "numeric"
         , day: "numeric"
         }
+    }
+
+test_DisplayNames :: Effect Unit
+test_DisplayNames = do
+  Console.log "DisplayNames.supportedLocalesOf"
+  Test.assertEqual
+    { actual: DisplayNames.supportedLocalesOf [ "en-US" ] { type: "language" }
+    , expected: [ "en-US" ]
+    }
+
+  displayNames <- DisplayNames.new [ "en-US" ] { type: "language" }
+
+  Console.log "DisplayNames.of_"
+  Test.assertEqual
+    { actual: DisplayNames.of_ displayNames "en-US"
+    , expected: "American English"
     }
 
 test_ListFormat :: Effect Unit
