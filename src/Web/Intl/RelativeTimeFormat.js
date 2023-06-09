@@ -1,7 +1,7 @@
 "use strict";
 
-export function _new(locales, opts) {
-  return new Intl.RelativeTimeFormat(locales, opts);
+export function _new(locales, options) {
+  return new Intl.RelativeTimeFormat(locales, options);
 }
 
 export function _format(relativeTimeFormat, value, unit) {
@@ -16,6 +16,6 @@ export function _resolvedOptions(relativeTimeFormat) {
   return relativeTimeFormat.resolvedOptions();
 }
 
-export function _supportedLocalesOf(locales, opts) {
-  return Intl.RelativeTimeFormat.supportedLocalesOf(locales, opts);
+export function _supportedLocalesOf(locales, options) {
+  return Intl.RelativeTimeFormat.supportedLocalesOf(locales, options);
 }

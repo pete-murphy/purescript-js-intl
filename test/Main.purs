@@ -16,6 +16,7 @@ import Web.Intl as Intl
 import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
 import Web.Intl.ListFormat as ListFormat
+import Web.Intl.Locale as Locale
 import Web.Intl.NumberFormat as NumberFormat
 import Web.Intl.PluralRules as PluralRules
 import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
@@ -27,6 +28,7 @@ main = do
   test_Collator
   test_DateTimeFormat
   test_ListFormat
+  test_Locale
   test_NumberFormat
   test_PluralRules
   test_RelativeTimeFormat
@@ -132,7 +134,7 @@ test_Collator = do
 
   collator <- Collator.new [ "en-US" ] { sensitivity: "base" }
 
-  Console.log "Collator##compare"
+  Console.log "Collator.compare"
   Test.assertEqual
     { actual: Collator.compare collator "a" "b"
     , expected: LT
@@ -148,7 +150,7 @@ test_Collator = do
     , expected: GT
     }
 
-  Console.log "Collator##resolvedOptions"
+  Console.log "Collator.resolvedOptions"
   resolvedOptions <- Collator.resolvedOptions collator
   Test.assertEqual
     { actual: resolvedOptions
@@ -197,13 +199,13 @@ test_DateTimeFormat = do
     date = mkDate { month: 11.0, day: 21.0, year: 2012.0 }
     date' = mkDate { month: 7.0, day: 23.0, year: 2013.0 }
 
-  Console.log "DateTimeFormat##format"
+  Console.log "DateTimeFormat.format"
   Test.assertEqual
     { actual: DateTimeFormat.format format date
     , expected: "12/21/2012"
     }
 
-  Console.log "DateTimeFormat##formatRange"
+  Console.log "DateTimeFormat.formatRange"
   Test.assertEqual
     { actual: DateTimeFormat.formatRange format date date
     , expected: "12/21/2012"
@@ -215,7 +217,7 @@ test_DateTimeFormat = do
         # String.replaceAll (Pattern "\x2009") (Replacement " ")
     }
 
-  Console.log "DateTimeFormat##formatRangeToParts"
+  Console.log "DateTimeFormat.formatRangeToParts"
   Test.assertEqual
     { actual: DateTimeFormat.formatRangeToParts format date date
     , expected:
@@ -245,7 +247,7 @@ test_DateTimeFormat = do
         ] <#> \part -> part { value = String.trim part.value }
     }
 
-  Console.log "DateTimeFormat##formatToParts"
+  Console.log "DateTimeFormat.formatToParts"
   Test.assertEqual
     { actual: DateTimeFormat.formatToParts format date
     , expected:
@@ -257,7 +259,7 @@ test_DateTimeFormat = do
         ]
     }
 
-  Console.log "DateTimeFormat##resolvedOptions"
+  Console.log "DateTimeFormat.resolvedOptions"
   resolvedOptions <- DateTimeFormat.resolvedOptions format
   Test.assertEqual
     { actual: resolvedOptions
@@ -288,13 +290,13 @@ test_ListFormat = do
 
   format <- ListFormat.new [ "en-US" ] { style: "long", type: "conjunction" }
 
-  Console.log "ListFormat##format"
+  Console.log "ListFormat.format"
   Test.assertEqual
     { actual: ListFormat.format format [ "foo", "bar", "baz" ]
     , expected: "foo, bar, and baz"
     }
 
-  Console.log "ListFormat##formatToParts"
+  Console.log "ListFormat.formatToParts"
   Test.assertEqual
     { actual: ListFormat.formatToParts format [ "foo", "bar", "baz" ]
     , expected:
@@ -306,7 +308,7 @@ test_ListFormat = do
         ]
     }
 
-  Console.log "ListFormat##resolvedOptions"
+  Console.log "ListFormat.resolvedOptions"
   resolvedOptions <- ListFormat.resolvedOptions format
   Test.assertEqual
     { actual: resolvedOptions
@@ -315,6 +317,15 @@ test_ListFormat = do
         , type: "conjunction"
         , style: "long"
         }
+    }
+
+test_Locale :: Effect Unit
+test_Locale = do
+  Console.log "Locale.baseName"
+  locale <- Locale.new_ [ "en-US" ]
+  Test.assertEqual
+    { actual: Locale.baseName locale
+    , expected: "en-US"
     }
 
 test_NumberFormat :: Effect Unit
@@ -333,13 +344,13 @@ test_NumberFormat = do
 
   format <- NumberFormat.new [ "en-US" ] { style: "currency", currency: "USD" }
 
-  Console.log "NumberFormat##format"
+  Console.log "NumberFormat.format"
   Test.assertEqual
     { actual: NumberFormat.format format 123456.789
     , expected: "$123,456.79"
     }
 
-  Console.log "NumberFormat##formatToParts"
+  Console.log "NumberFormat.formatToParts"
   Test.assertEqual
     { actual: NumberFormat.formatToParts format 123456.789
     , expected:
@@ -352,7 +363,7 @@ test_NumberFormat = do
         ]
     }
 
-  Console.log "NumberFormat##resolvedOptions"
+  Console.log "NumberFormat.resolvedOptions"
   resolvedOptions <- NumberFormat.resolvedOptions format
 
   Test.assertEqual
@@ -375,7 +386,7 @@ test_NumberFormat = do
 
 -- TODO: Not yet supported in Node
 
--- Console.log "NumberFormat##formatRange"
+-- Console.log "NumberFormat.formatRange"
 -- Test.assertEqual
 --   { actual: NumberFormat.formatRange format 123456.789 987654.321
 --       # String.replaceAll (Pattern "\x2009") (Replacement " ")
@@ -383,7 +394,7 @@ test_NumberFormat = do
 --       # String.replaceAll (Pattern "\x2009") (Replacement " ")
 --   }
 
--- Console.log "NumberFormat##formatRangeToParts"
+-- Console.log "NumberFormat.formatRangeToParts"
 -- Test.assertEqual
 --   { actual: NumberFormat.formatRangeToParts format 123456.789 987654.321
 --       <#> \part -> part { value = String.trim part.value }
@@ -421,13 +432,13 @@ test_PluralRules = do
 
   pluralRules <- PluralRules.new [ "en-US" ] { type: "ordinal" }
 
-  Console.log "PluralRules##select"
+  Console.log "PluralRules.select"
   Test.assertEqual
     { actual: PluralRules.select pluralRules 1
     , expected: "one"
     }
 
-  Console.log "PluralRules##resolvedOptions"
+  Console.log "PluralRules.resolvedOptions"
   resolvedOptions <- PluralRules.resolvedOptions pluralRules
   Test.assertEqual
     { actual: resolvedOptions
@@ -454,13 +465,13 @@ test_RelativeTimeFormat = do
 
   format <- RelativeTimeFormat.new [ "en-US" ] { numeric: "auto" }
 
-  Console.log "RelativeTimeFormat##format"
+  Console.log "RelativeTimeFormat.format"
   Test.assertEqual
     { actual: RelativeTimeFormat.format format (-1) "day"
     , expected: "yesterday"
     }
 
-  Console.log "RelativeTimeFormat##formatToParts"
+  Console.log "RelativeTimeFormat.formatToParts"
   Test.assertEqual
     { actual: RelativeTimeFormat.formatToParts format (-1) "day"
     , expected:
@@ -468,7 +479,7 @@ test_RelativeTimeFormat = do
         ]
     }
 
-  Console.log "RelativeTimeFormat##resolvedOptions"
+  Console.log "RelativeTimeFormat.resolvedOptions"
   resolvedOptions <- RelativeTimeFormat.resolvedOptions format
   Test.assertEqual
     { actual: resolvedOptions

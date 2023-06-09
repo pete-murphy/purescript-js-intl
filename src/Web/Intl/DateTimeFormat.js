@@ -1,11 +1,11 @@
 "use strict";
 
-export function _new(locales, opts) {
-  return new Intl.DateTimeFormat(locales, opts);
+export function _new(locales, options) {
+  return new Intl.DateTimeFormat(locales, options);
 }
 
-export function _supportedLocalesOf(locales, opts) {
-  return Intl.DateTimeFormat.supportedLocalesOf(locales, opts);
+export function _supportedLocalesOf(locales, options) {
+  return Intl.DateTimeFormat.supportedLocalesOf(locales, options);
 }
 
 export function _format(dateTimeFormat, date) {

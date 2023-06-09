@@ -24,7 +24,8 @@ import Effect.Uncurried as Effect.Uncurried
 import Prelude (compare) as Prelude
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.LocaleOptions (LocaleOptions)
+
+foreign import data Collator :: Type
 
 type CollatorOptions =
   ( localeMatcher :: String
@@ -35,8 +36,6 @@ type CollatorOptions =
   , caseFirst :: String
   , collation :: String
   )
-
-foreign import data Collator :: Type
 
 foreign import _new
   :: EffectFn2
@@ -62,12 +61,12 @@ new_ locales =
 foreign import _supportedLocalesOf
   :: Fn2
        (Array String)
-       (Record LocaleOptions)
+       (Record CollatorOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
-   . Union options options' LocaleOptions
+   . Union options options' CollatorOptions
   => Array String
   -> Record options
   -> Array String

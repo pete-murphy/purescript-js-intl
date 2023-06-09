@@ -22,7 +22,8 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.LocaleOptions (LocaleOptions)
+
+foreign import data PluralRules :: Type
 
 type PluralRulesOptions =
   ( localeMatcher :: String
@@ -33,8 +34,6 @@ type PluralRulesOptions =
   , minimumSignificantDigits :: Int
   , maximumSignificantDigits :: Int
   )
-
-foreign import data PluralRules :: Type
 
 foreign import _new
   :: EffectFn2
@@ -58,12 +57,12 @@ new_ locales =
 foreign import _supportedLocalesOf
   :: Fn2
        (Array String)
-       (Record LocaleOptions)
+       (Record PluralRulesOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
-   . Union options options' LocaleOptions
+   . Union options options' PluralRulesOptions
   => Array String
   -> Record options
   -> Array String

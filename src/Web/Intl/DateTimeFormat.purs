@@ -25,7 +25,8 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.LocaleOptions (LocaleOptions)
+
+foreign import data DateTimeFormat :: Type
 
 type DateTimeFormatOptions =
   ( localeMatcher :: String
@@ -42,8 +43,6 @@ type DateTimeFormatOptions =
   , hour12 :: Boolean
   , timeZone :: String
   )
-
-foreign import data DateTimeFormat :: Type
 
 foreign import _new
   :: EffectFn2
@@ -69,12 +68,12 @@ new_ locales =
 foreign import _supportedLocalesOf
   :: Fn2
        (Array String)
-       (Record LocaleOptions)
+       (Record DateTimeFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
-   . Union options options' LocaleOptions
+   . Union options options' DateTimeFormatOptions
   => Array String
   -> Record options
   -> Array String

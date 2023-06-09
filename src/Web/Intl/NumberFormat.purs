@@ -24,7 +24,8 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.LocaleOptions (LocaleOptions)
+
+foreign import data NumberFormat :: Type
 
 type NumberFormatOptions =
   ( compactDisplay :: String
@@ -50,8 +51,6 @@ type NumberFormatOptions =
   , maximumSignificantDigits :: Int
   )
 
-foreign import data NumberFormat :: Type
-
 foreign import _new
   :: EffectFn2
        (Array String)
@@ -76,12 +75,12 @@ new_ locales =
 foreign import _supportedLocalesOf
   :: Fn2
        (Array String)
-       (Record LocaleOptions)
+       (Record NumberFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
-   . Union options options' LocaleOptions
+   . Union options options' NumberFormatOptions
   => Array String
   -> Record options
   -> Array String

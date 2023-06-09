@@ -1,11 +1,11 @@
 "use strict";
 
-export function _new(locales, opts) {
-  return new Intl.Collator(locales, opts);
+export function _new(locales, options) {
+  return new Intl.Collator(locales, options);
 }
 
-export function _supportedLocalesOf(locales, opts) {
-  return Intl.Collator.supportedLocalesOf(locales, opts);
+export function _supportedLocalesOf(locales, options) {
+  return Intl.Collator.supportedLocalesOf(locales, options);
 }
 
 export function _compare(collator, x, y) {

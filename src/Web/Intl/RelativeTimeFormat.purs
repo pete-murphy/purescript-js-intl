@@ -22,15 +22,14 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.LocaleOptions (LocaleOptions)
+
+foreign import data RelativeTimeFormat :: Type
 
 type RelativeTimeFormatOptions =
   ( localeMatcher :: String
   , numeric :: String
   , style :: String
   )
-
-foreign import data RelativeTimeFormat :: Type
 
 foreign import _new
   :: EffectFn2
@@ -56,12 +55,12 @@ new_ locales =
 foreign import _supportedLocalesOf
   :: Fn2
        (Array String)
-       (Record LocaleOptions)
+       (Record RelativeTimeFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
-   . Union options options' LocaleOptions
+   . Union options options' RelativeTimeFormatOptions
   => Array String
   -> Record options
   -> Array String
