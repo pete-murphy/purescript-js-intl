@@ -1,4 +1,7 @@
-module Web.Intl where
+module Web.Intl
+  ( getCanonicalLocales
+  , supportedValuesOf
+  ) where
 
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1)
