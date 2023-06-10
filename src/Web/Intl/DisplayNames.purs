@@ -14,6 +14,9 @@ module Web.Intl.DisplayNames
 
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
+import Data.Maybe (Maybe)
+import Data.Nullable (Nullable)
+import Data.Nullable as Nullable
 import Effect (Effect)
 import Effect.Uncurried (EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
@@ -65,7 +68,7 @@ supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
 foreign import _of
-  :: Fn2 DisplayNames String String
+  :: Fn2 DisplayNames String (Nullable String)
 
-of_ :: DisplayNames -> String -> String
-of_ = Function.Uncurried.runFn2 _of
+of_ :: DisplayNames -> String -> Maybe String
+of_ displayNames key = Nullable.toMaybe (Function.Uncurried.runFn2 _of displayNames key)

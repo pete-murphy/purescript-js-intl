@@ -5,6 +5,7 @@ import Prelude
 import Data.Either (Either(..))
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
+import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
@@ -289,7 +290,7 @@ test_DisplayNames = do
   Console.log "DisplayNames.of_"
   Test.assertEqual
     { actual: DisplayNames.of_ displayNames "en-US"
-    , expected: "American English"
+    , expected: Just "American English"
     }
 
 test_ListFormat :: Effect Unit
