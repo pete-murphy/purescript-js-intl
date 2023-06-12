@@ -62,7 +62,9 @@ foreign import _baseName
        Locale
        String
 
-baseName :: Locale -> String
+baseName
+  :: Locale
+  -> String
 baseName =
   Function.Uncurried.runFn1 _baseName
 
@@ -80,6 +82,8 @@ foreign import _minimize
        Locale
        Locale
 
-minimize :: Locale -> Locale
+minimize
+  :: Locale
+  -> Locale
 minimize =
   Function.Uncurried.runFn1 _minimize

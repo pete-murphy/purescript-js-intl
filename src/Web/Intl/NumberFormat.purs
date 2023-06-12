@@ -24,6 +24,7 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Locale (Locale)
 
 foreign import data NumberFormat :: Type
 
@@ -53,42 +54,42 @@ type NumberFormatOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array Locale)
        (Record NumberFormatOptions)
        NumberFormat
 
 new
   :: forall options options'
    . Union options options' NumberFormatOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Effect NumberFormat
 new locales options =
   Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
 new_
-  :: Array String
+  :: Array Locale
   -> Effect NumberFormat
 new_ locales =
   new locales {}
 
 foreign import _supportedLocalesOf
   :: Fn2
-       (Array String)
+       (Array Locale)
        (Record NumberFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' NumberFormatOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
 supportedLocalesOf_
-  :: Array String
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
@@ -151,5 +152,7 @@ foreign import _resolvedOptions
        NumberFormat
        ResolvedOptions
 
-resolvedOptions :: NumberFormat -> Effect ResolvedOptions
+resolvedOptions
+  :: NumberFormat
+  -> Effect ResolvedOptions
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions

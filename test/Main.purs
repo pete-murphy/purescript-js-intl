@@ -2,7 +2,6 @@ module Test.Main where
 
 import Prelude
 
-import Data.Either (Either(..))
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
@@ -10,10 +9,10 @@ import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
 import Effect.Class.Console as Console
-import Effect.Exception as Exception
 import Record as Record
 import Test.Assert.Extended as Test
 import Web.Intl as Intl
+import Web.Intl.AvailableCanonical as AvailableCanonical
 import Web.Intl.Collator as Collator
 import Web.Intl.DateTimeFormat as DateTimeFormat
 import Web.Intl.DisplayNames as DisplayNames
@@ -22,6 +21,7 @@ import Web.Intl.Locale as Locale
 import Web.Intl.NumberFormat as NumberFormat
 import Web.Intl.PluralRules as PluralRules
 import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
+import Web.Intl.RelativeTimeUnit (RelativeTimeUnit(..))
 
 main :: Effect Unit
 main = do
@@ -40,53 +40,33 @@ test_Intl :: Effect Unit
 test_Intl = do
   Console.log "Intl.getCanonicalLocales"
   do
-    actual <- Intl.getCanonicalLocales [ "EN-US" ]
+    let actual = Intl.getCanonicalLocales [ "EN-US" ]
     Test.assertEqual
       { actual
-      , expected: [ "en-US" ]
+      , expected: Just [ "en-US" ]
       }
   do
-    actual <- Intl.getCanonicalLocales [ "EN-US", "Fr" ]
+    let actual = Intl.getCanonicalLocales [ "EN-US", "Fr" ]
     Test.assertEqual
       { actual
-      , expected: [ "en-US", "fr" ]
+      , expected: Just [ "en-US", "fr" ]
       }
   do
-    actual <- Exception.catchException (pure <<< Left <<< Exception.name) do
-      Right <$> Intl.getCanonicalLocales [ "EN_US" ]
+    let actual = Intl.getCanonicalLocales [ "EN_US" ]
     Test.assertEqual
       { actual
-      , expected: Left "RangeError"
+      , expected: Nothing
       }
 
   Console.log "Intl.supportedValuesOf"
   do
-    actual <- Intl.supportedValuesOf "calendar"
+    let actual = Intl.supportedValuesOf AvailableCanonical.Calendar
     Test.assertContains
       { actual
-      , expected:
-          [ "buddhist"
-          , "chinese"
-          , "coptic"
-          , "dangi"
-          , "ethioaa"
-          , "ethiopic"
-          , "gregory"
-          , "hebrew"
-          , "indian"
-          , "islamic"
-          , "islamic-civil"
-          , "islamic-rgsa"
-          , "islamic-tbla"
-          , "islamic-umalqura"
-          , "iso8601"
-          , "japanese"
-          , "persian"
-          , "roc"
-          ]
+      , expected: [ "iso8601" ]
       }
   do
-    actual <- Intl.supportedValuesOf "collation"
+    let actual = Intl.supportedValuesOf AvailableCanonical.Collation
     Test.assertContains
       { actual
       , expected:
@@ -104,38 +84,34 @@ test_Intl = do
           , "zhuyin"
           ]
       }
-  do
-    actual <- Exception.catchException (pure <<< Left <<< Exception.name) do
-      Right <$> Intl.supportedValuesOf "someInvalidKey"
-    Test.assertEqual
-      { actual
-      , expected: Left "RangeError"
-      }
 
 test_Collator :: Effect Unit
 test_Collator = do
+  en_US <- Locale.new_ [ "en-US" ]
+  es_MX <- Locale.new_ [ "es-MX" ]
+
   Console.log "Collator.supportedLocalesOf"
   Test.assertEqual
-    { actual: Collator.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    { actual: Collator.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
 
   Test.assertEqual
-    { actual: Collator.supportedLocalesOf [ "en-US", "es-MX" ] { localeMatcher: "best fit" }
+    { actual: Collator.supportedLocalesOf [ en_US, es_MX ] { localeMatcher: "best fit" }
     , expected: [ "en-US", "es-MX" ]
     }
 
   Console.log "Collator.supportedLocalesOf_"
   Test.assertEqual
-    { actual: Collator.supportedLocalesOf_ [ "en-US" ]
+    { actual: Collator.supportedLocalesOf_ [ en_US ]
     , expected: [ "en-US" ]
     }
   Test.assertEqual
-    { actual: Collator.supportedLocalesOf_ [ "en-US", "es-MX" ]
+    { actual: Collator.supportedLocalesOf_ [ en_US, es_MX ]
     , expected: [ "en-US", "es-MX" ]
     }
 
-  collator <- Collator.new [ "en-US" ] { sensitivity: "base" }
+  collator <- Collator.new [ en_US ] { sensitivity: "base" }
 
   Console.log "Collator.compare"
   Test.assertEqual
@@ -170,27 +146,30 @@ test_Collator = do
 
 test_DateTimeFormat :: Effect Unit
 test_DateTimeFormat = do
+  en_US <- Locale.new_ [ "en-US" ]
+  es_MX <- Locale.new_ [ "es-MX" ]
+
   Console.log "DateTimeFormat.supportedLocalesOf"
   Test.assertEqual
-    { actual: DateTimeFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    { actual: DateTimeFormat.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
   Test.assertEqual
-    { actual: DateTimeFormat.supportedLocalesOf [ "en-US", "es-MX" ] { localeMatcher: "best fit" }
+    { actual: DateTimeFormat.supportedLocalesOf [ en_US, es_MX ] { localeMatcher: "best fit" }
     , expected: [ "en-US", "es-MX" ]
     }
 
   Console.log "DateTimeFormat.supportedLocalesOf_"
   Test.assertEqual
-    { actual: DateTimeFormat.supportedLocalesOf_ [ "en-US" ]
+    { actual: DateTimeFormat.supportedLocalesOf_ [ en_US ]
     , expected: [ "en-US" ]
     }
   Test.assertEqual
-    { actual: DateTimeFormat.supportedLocalesOf_ [ "en-US", "es-MX" ]
+    { actual: DateTimeFormat.supportedLocalesOf_ [ en_US, es_MX ]
     , expected: [ "en-US", "es-MX" ]
     }
 
-  format <- DateTimeFormat.new [ "en-US" ] { timeZone: "UTC" }
+  format <- DateTimeFormat.new [ en_US ] { timeZone: "UTC" }
   let
     mkDate :: { month :: Number, day :: Number, year :: Number } -> JSDate
     mkDate = JSDate.jsdate <<< Record.merge
@@ -279,13 +258,15 @@ test_DateTimeFormat = do
 
 test_DisplayNames :: Effect Unit
 test_DisplayNames = do
+  en_US <- Locale.new_ [ "en-US" ]
+
   Console.log "DisplayNames.supportedLocalesOf"
   Test.assertEqual
-    { actual: DisplayNames.supportedLocalesOf [ "en-US" ] { type: "language" }
+    { actual: DisplayNames.supportedLocalesOf [ en_US ] { type: "language" }
     , expected: [ "en-US" ]
     }
 
-  displayNames <- DisplayNames.new [ "en-US" ] { type: "language" }
+  displayNames <- DisplayNames.new [ en_US ] { type: "language" }
 
   Console.log "DisplayNames.of_"
   Test.assertEqual
@@ -295,19 +276,21 @@ test_DisplayNames = do
 
 test_ListFormat :: Effect Unit
 test_ListFormat = do
+  en_US <- Locale.new_ [ "en-US" ]
+
   Console.log "List.supportedLocalesOf"
   Test.assertEqual
-    { actual: ListFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    { actual: ListFormat.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
 
   Console.log "List.supportedLocalesOf_"
   Test.assertEqual
-    { actual: ListFormat.supportedLocalesOf_ [ "en-US" ]
+    { actual: ListFormat.supportedLocalesOf_ [ en_US ]
     , expected: [ "en-US" ]
     }
 
-  format <- ListFormat.new [ "en-US" ] { style: "long", type: "conjunction" }
+  format <- ListFormat.new [ en_US ] { style: "long", type: "conjunction" }
 
   Console.log "ListFormat.format"
   Test.assertEqual
@@ -349,19 +332,21 @@ test_Locale = do
 
 test_NumberFormat :: Effect Unit
 test_NumberFormat = do
+  en_US <- Locale.new_ [ "en-US" ]
+
   Console.log "NumberFormat.supportedLocalesOf"
   Test.assertEqual
-    { actual: NumberFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    { actual: NumberFormat.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
 
   Console.log "NumberFormat.supportedLocalesOf_"
   Test.assertEqual
-    { actual: NumberFormat.supportedLocalesOf_ [ "en-US" ]
+    { actual: NumberFormat.supportedLocalesOf_ [ en_US ]
     , expected: [ "en-US" ]
     }
 
-  format <- NumberFormat.new [ "en-US" ] { style: "currency", currency: "USD" }
+  format <- NumberFormat.new [ en_US ] { style: "currency", currency: "USD" }
 
   Console.log "NumberFormat.format"
   Test.assertEqual
@@ -437,19 +422,21 @@ test_NumberFormat = do
 
 test_PluralRules :: Effect Unit
 test_PluralRules = do
+  en_US <- Locale.new_ [ "en-US" ]
+
   Console.log "PluralRules.supportedLocalesOf"
   Test.assertEqual
-    { actual: PluralRules.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    { actual: PluralRules.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
 
   Console.log "PluralRules.supportedLocalesOf_"
   Test.assertEqual
-    { actual: PluralRules.supportedLocalesOf_ [ "en-US" ]
+    { actual: PluralRules.supportedLocalesOf_ [ en_US ]
     , expected: [ "en-US" ]
     }
 
-  pluralRules <- PluralRules.new [ "en-US" ] { type: "ordinal" }
+  pluralRules <- PluralRules.new [ en_US ] { type: "ordinal" }
 
   Console.log "PluralRules.select"
   Test.assertEqual
@@ -470,29 +457,31 @@ test_PluralRules = do
 
 test_RelativeTimeFormat :: Effect Unit
 test_RelativeTimeFormat = do
+  en_US <- Locale.new_ [ "en-US" ]
+
   Console.log "RelativeTimeFormat.supportedLocalesOf"
   Test.assertEqual
-    { actual: RelativeTimeFormat.supportedLocalesOf [ "en-US" ] { localeMatcher: "best fit" }
+    { actual: RelativeTimeFormat.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
     , expected: [ "en-US" ]
     }
 
   Console.log "RelativeTimeFormat.supportedLocalesOf_"
   Test.assertEqual
-    { actual: RelativeTimeFormat.supportedLocalesOf_ [ "en-US" ]
+    { actual: RelativeTimeFormat.supportedLocalesOf_ [ en_US ]
     , expected: [ "en-US" ]
     }
 
-  format <- RelativeTimeFormat.new [ "en-US" ] { numeric: "auto" }
+  format <- RelativeTimeFormat.new [ en_US ] { numeric: "auto" }
 
   Console.log "RelativeTimeFormat.format"
   Test.assertEqual
-    { actual: RelativeTimeFormat.format format (-1) "day"
+    { actual: RelativeTimeFormat.format format (-1) Days
     , expected: "yesterday"
     }
 
   Console.log "RelativeTimeFormat.formatToParts"
   Test.assertEqual
-    { actual: RelativeTimeFormat.formatToParts format (-1) "day"
+    { actual: RelativeTimeFormat.formatToParts format (-1) Days
     , expected:
         [ { type: "literal", value: "yesterday" }
         ]

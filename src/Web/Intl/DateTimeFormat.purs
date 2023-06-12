@@ -25,6 +25,7 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Locale (Locale)
 
 foreign import data DateTimeFormat :: Type
 
@@ -46,42 +47,42 @@ type DateTimeFormatOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array Locale)
        (Record DateTimeFormatOptions)
        DateTimeFormat
 
 new
   :: forall options options'
    . Union options options' DateTimeFormatOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Effect DateTimeFormat
 new locales options =
   Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
 new_
-  :: Array String
+  :: Array Locale
   -> Effect DateTimeFormat
 new_ locales =
   new locales {}
 
 foreign import _supportedLocalesOf
   :: Fn2
-       (Array String)
+       (Array Locale)
        (Record DateTimeFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' DateTimeFormatOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
 supportedLocalesOf_
-  :: Array String
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
@@ -92,7 +93,10 @@ foreign import _format
        JSDate
        String
 
-format :: DateTimeFormat -> JSDate -> String
+format
+  :: DateTimeFormat
+  -> JSDate
+  -> String
 format = Function.Uncurried.runFn2 _format
 
 foreign import _formatRange
@@ -102,7 +106,11 @@ foreign import _formatRange
        JSDate
        String
 
-formatRange :: DateTimeFormat -> JSDate -> JSDate -> String
+formatRange
+  :: DateTimeFormat
+  -> JSDate
+  -> JSDate
+  -> String
 formatRange = Function.Uncurried.runFn3 _formatRange
 
 foreign import _formatRangeToParts
@@ -112,7 +120,11 @@ foreign import _formatRangeToParts
        JSDate
        (Array { type :: String, value :: String })
 
-formatRangeToParts :: DateTimeFormat -> JSDate -> JSDate -> Array { type :: String, value :: String }
+formatRangeToParts
+  :: DateTimeFormat
+  -> JSDate
+  -> JSDate
+  -> Array { type :: String, value :: String }
 formatRangeToParts = Function.Uncurried.runFn3 _formatRangeToParts
 
 foreign import _formatToParts
@@ -121,7 +133,10 @@ foreign import _formatToParts
        JSDate
        (Array { type :: String, value :: String })
 
-formatToParts :: DateTimeFormat -> JSDate -> Array { type :: String, value :: String }
+formatToParts
+  :: DateTimeFormat
+  -> JSDate
+  -> Array { type :: String, value :: String }
 formatToParts = Function.Uncurried.runFn2 _formatToParts
 
 type ResolvedOptions =
@@ -139,5 +154,7 @@ foreign import _resolvedOptions
        DateTimeFormat
        ResolvedOptions
 
-resolvedOptions :: DateTimeFormat -> Effect ResolvedOptions
+resolvedOptions
+  :: DateTimeFormat
+  -> Effect ResolvedOptions
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions

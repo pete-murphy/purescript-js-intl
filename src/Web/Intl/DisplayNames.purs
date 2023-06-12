@@ -22,6 +22,7 @@ import Effect.Uncurried (EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Locale (Locale)
 
 foreign import data DisplayNames :: Type
 
@@ -39,14 +40,14 @@ type DisplayNamesOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array Locale)
        DisplayNamesOptions
        DisplayNames
 
 new
   :: forall options options'
    . Union options options' DisplayNamesOptions'Optional
-  => Array String
+  => Array Locale
   -> { type :: String | options }
   -> Effect DisplayNames
 new locales options =
@@ -54,21 +55,27 @@ new locales options =
 
 foreign import _supportedLocalesOf
   :: Fn2
-       (Array String)
+       (Array Locale)
        DisplayNamesOptions
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' DisplayNamesOptions'Optional
-  => Array String
+  => Array Locale
   -> { type :: String | options }
   -> Array String
 supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
 foreign import _of
-  :: Fn2 DisplayNames String (Nullable String)
+  :: Fn2
+       DisplayNames
+       String
+       (Nullable String)
 
-of_ :: DisplayNames -> String -> Maybe String
+of_
+  :: DisplayNames
+  -> String
+  -> Maybe String
 of_ displayNames key = Nullable.toMaybe (Function.Uncurried.runFn2 _of displayNames key)

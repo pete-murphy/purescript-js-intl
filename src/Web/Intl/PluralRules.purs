@@ -22,6 +22,7 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Locale (Locale)
 
 foreign import data PluralRules :: Type
 
@@ -37,39 +38,39 @@ type PluralRulesOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array Locale)
        (Record PluralRulesOptions)
        PluralRules
 
 new
   :: forall options options'
    . Union options options' PluralRulesOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Effect PluralRules
 new locales options =
   Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
-new_ :: Array String -> Effect PluralRules
+new_ :: Array Locale -> Effect PluralRules
 new_ locales =
   new locales {}
 
 foreign import _supportedLocalesOf
   :: Fn2
-       (Array String)
+       (Array Locale)
        (Record PluralRulesOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' PluralRulesOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
-supportedLocalesOf_ :: Array String -> Array String
+supportedLocalesOf_ :: Array Locale -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
 
@@ -90,7 +91,11 @@ foreign import _selectRange
        Int
        String
 
-selectRange :: PluralRules -> Int -> Int -> String
+selectRange
+  :: PluralRules
+  -> Int
+  -> Int
+  -> String
 selectRange =
   Function.Uncurried.runFn3 _selectRange
 
@@ -105,5 +110,7 @@ foreign import _resolvedOptions
        PluralRules
        ResolvedOptions
 
-resolvedOptions :: PluralRules -> Effect ResolvedOptions
+resolvedOptions
+  :: PluralRules
+  -> Effect ResolvedOptions
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions

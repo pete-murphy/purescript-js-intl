@@ -24,6 +24,7 @@ import Effect.Uncurried as Effect.Uncurried
 import Prelude (compare) as Prelude
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Locale (Locale)
 
 foreign import data Collator :: Type
 
@@ -39,41 +40,43 @@ type CollatorOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array Locale)
        (Record CollatorOptions)
        Collator
 
 new
   :: forall options options'
    . Union options options' CollatorOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Effect Collator
 new locales options =
   Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
 new_
-  :: Array String
+  :: Array Locale
   -> Effect Collator
 new_ locales =
   new locales {}
 
 foreign import _supportedLocalesOf
   :: Fn2
-       (Array String)
+       (Array Locale)
        (Record CollatorOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' CollatorOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
-supportedLocalesOf_ :: Array String -> Array String
+supportedLocalesOf_
+  :: Array Locale
+  -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
 
@@ -84,7 +87,11 @@ foreign import _compare
        String
        Number
 
-compare :: Collator -> String -> String -> Ordering
+compare
+  :: Collator
+  -> String
+  -> String
+  -> Ordering
 compare collator x y = do
   Prelude.compare (Function.Uncurried.runFn3 _compare collator x y) 0.0
 
@@ -103,6 +110,8 @@ foreign import _resolvedOptions
        Collator
        ResolvedOptions
 
-resolvedOptions :: Collator -> Effect ResolvedOptions
+resolvedOptions
+  :: Collator
+  -> Effect ResolvedOptions
 resolvedOptions collator =
   Effect.Uncurried.runEffectFn1 _resolvedOptions collator

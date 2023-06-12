@@ -22,6 +22,7 @@ import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
+import Web.Intl.Locale (Locale)
 
 foreign import data ListFormat :: Type
 
@@ -33,42 +34,42 @@ type ListFormatOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       (Array Locale)
        (Record ListFormatOptions)
        ListFormat
 
 new
   :: forall options options'
    . Union options options' ListFormatOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Effect ListFormat
 new locales options =
   Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
 new_
-  :: Array String
+  :: Array Locale
   -> Effect ListFormat
 new_ locales =
   new locales {}
 
 foreign import _supportedLocalesOf
   :: Fn2
-       (Array String)
+       (Array Locale)
        (Record ListFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' ListFormatOptions
-  => Array String
+  => Array Locale
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
   Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
 
 supportedLocalesOf_
-  :: Array String
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
@@ -79,7 +80,10 @@ foreign import _format
        (Array String)
        String
 
-format :: ListFormat -> Array String -> String
+format
+  :: ListFormat
+  -> Array String
+  -> String
 format = Function.Uncurried.runFn2 _format
 
 foreign import _formatToParts
@@ -88,7 +92,10 @@ foreign import _formatToParts
        (Array String)
        (Array { type :: String, value :: String })
 
-formatToParts :: ListFormat -> Array String -> Array { type :: String, value :: String }
+formatToParts
+  :: ListFormat
+  -> Array String
+  -> Array { type :: String, value :: String }
 formatToParts = Function.Uncurried.runFn2 _formatToParts
 
 type ResolvedOptions =
@@ -102,5 +109,7 @@ foreign import _resolvedOptions
        ListFormat
        ResolvedOptions
 
-resolvedOptions :: ListFormat -> Effect ResolvedOptions
+resolvedOptions
+  :: ListFormat
+  -> Effect ResolvedOptions
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions

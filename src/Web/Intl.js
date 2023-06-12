@@ -1,7 +1,11 @@
 "use strict";
 
-export function _getCanonicalLocales(locales) {
-  return Intl.getCanonicalLocales(locales);
+export function _getCanonicalLocales(just, nothing, locales) {
+  try {
+    return just(Intl.getCanonicalLocales(locales));
+  } catch (e) {
+    return nothing;
+  }
 }
 
 export function _supportedValuesOf(key) {
