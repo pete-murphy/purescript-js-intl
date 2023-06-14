@@ -15,6 +15,8 @@ module Web.Intl.ListFormat
   , resolvedOptions
   ) where
 
+import Data.Array.NonEmpty (NonEmptyArray)
+import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
@@ -41,14 +43,14 @@ foreign import _new
 new
   :: forall options options'
    . Union options options' ListFormatOptions
-  => Array Locale
+  => NonEmptyArray Locale
   -> Record options
   -> Effect ListFormat
 new locales options =
-  Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
+  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
 
 new_
-  :: Array Locale
+  :: NonEmptyArray Locale
   -> Effect ListFormat
 new_ locales =
   new locales {}
@@ -62,14 +64,14 @@ foreign import _supportedLocalesOf
 supportedLocalesOf
   :: forall options options'
    . Union options options' ListFormatOptions
-  => Array Locale
+  => NonEmptyArray Locale
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
+  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
 
 supportedLocalesOf_
-  :: Array Locale
+  :: NonEmptyArray Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}

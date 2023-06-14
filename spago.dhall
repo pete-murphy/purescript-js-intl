@@ -1,6 +1,7 @@
 { name = "web-intl"
 , dependencies =
-  [ "effect"
+  [ "arrays"
+  , "effect"
   , "functions"
   , "js-date"
   , "maybe"

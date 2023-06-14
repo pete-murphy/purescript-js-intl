@@ -38,21 +38,21 @@ type LocaleOptions =
 
 foreign import _new
   :: EffectFn2
-       (Array String)
+       String
        (Record LocaleOptions)
        Locale
 
 new
   :: forall options options'
    . Union options options' LocaleOptions
-  => Array String
+  => String
   -> Record options
   -> Effect Locale
 new locales options =
   Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
 new_
-  :: Array String
+  :: String
   -> Effect Locale
 new_ locales =
   new locales {}

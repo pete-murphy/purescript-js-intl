@@ -2,6 +2,7 @@ module Web.Intl.DisplayNames
   -- * Types
   ( DisplayNames
   , DisplayNamesOptions
+  , DisplayNamesOptions'Required
   , DisplayNamesOptions'Optional
 
   -- * Constructor
@@ -12,6 +13,8 @@ module Web.Intl.DisplayNames
   , of_
   ) where
 
+import Data.Array.NonEmpty (NonEmptyArray)
+import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.Maybe (Maybe)
@@ -33,40 +36,43 @@ type DisplayNamesOptions'Optional =
   , fallback :: String
   )
 
+type DisplayNamesOptions'Required options =
+  ( type :: String
+  | options
+  )
+
 type DisplayNamesOptions =
-  { type :: String
-  | DisplayNamesOptions'Optional
-  }
+  DisplayNamesOptions'Required DisplayNamesOptions'Optional
 
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       DisplayNamesOptions
+       (Record DisplayNamesOptions)
        DisplayNames
 
 new
   :: forall options options'
    . Union options options' DisplayNamesOptions'Optional
-  => Array Locale
-  -> { type :: String | options }
+  => NonEmptyArray Locale
+  -> Record (DisplayNamesOptions'Required options)
   -> Effect DisplayNames
 new locales options =
-  Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
+  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       DisplayNamesOptions
+       (Record DisplayNamesOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
    . Union options options' DisplayNamesOptions'Optional
-  => Array Locale
+  => NonEmptyArray Locale
   -> { type :: String | options }
   -> Array String
 supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf locales (Unsafe.Coerce.unsafeCoerce options)
+  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
 
 foreign import _of
   :: Fn2
