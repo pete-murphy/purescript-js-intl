@@ -45,6 +45,9 @@ type DateTimeFormatOptions =
   , formatMatcher :: String
   , hour12 :: Boolean
   , timeZone :: String
+  , hourCycle :: String
+  , dateStyle :: String
+  , timeStyle :: String
   )
 
 foreign import _new
