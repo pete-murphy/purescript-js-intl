@@ -23,6 +23,7 @@ import Web.Intl.NumberFormat as NumberFormat
 import Web.Intl.PluralRules as PluralRules
 import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
 import Web.Intl.RelativeTimeUnit (RelativeTimeUnit(..))
+import Web.Intl.Segmenter as Segmenter
 
 main :: Effect Unit
 main = do
@@ -36,6 +37,7 @@ main = do
   test_NumberFormat
   test_PluralRules
   test_RelativeTimeFormat
+  test_Segmenter
 
 test_Intl :: Effect Unit
 test_Intl = do
@@ -501,5 +503,45 @@ test_RelativeTimeFormat = do
         , numberingSystem: "latn"
         , numeric: "auto"
         , style: "long"
+        }
+    }
+
+test_Segmenter :: Effect Unit
+test_Segmenter = do
+  en_US <- NonEmpty.singleton <$> Locale.new_ "en-US"
+
+  Console.log "Segmenter.supportedLocalesOf"
+  Test.assertEqual
+    { actual: Segmenter.supportedLocalesOf en_US { localeMatcher: "best fit" }
+    , expected: [ "en-US" ]
+    }
+
+  Console.log "Segmenter.supportedLocalesOf_"
+  Test.assertEqual
+    { actual: Segmenter.supportedLocalesOf_ en_US
+    , expected: [ "en-US" ]
+    }
+
+  segmenter <- Segmenter.new en_US { granularity: "word" }
+
+  Console.log "Segmenter.segment"
+  Test.assertEqual
+    { actual: _.segment <$> Segmenter.segment segmenter "Hello, world!"
+    , expected:
+        [ "Hello"
+        , ","
+        , " "
+        , "world"
+        , "!"
+        ]
+    }
+
+  Console.log "Segmenter.resolvedOptions"
+  resolvedOptions <- Segmenter.resolvedOptions segmenter
+  Test.assertEqual
+    { actual: resolvedOptions
+    , expected:
+        { locale: "en-US"
+        , granularity: "word"
         }
     }

@@ -7,6 +7,8 @@
   , "maybe"
   , "nullable"
   , "prelude"
+  , "tuples"
+  , "unfoldable"
   , "unsafe-coerce"
   ]
 , packages = ./packages.dhall
