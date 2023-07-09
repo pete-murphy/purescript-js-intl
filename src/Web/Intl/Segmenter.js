@@ -8,12 +8,12 @@ export function _resolvedOptions(segmenter) {
   return segmenter.resolvedOptions();
 }
 
-export function _segment(segmenter, string) {
-  return segmenter.segment(string)[Symbol.iterator]();
-}
-
 export function _supportedLocalesOf(locales, options) {
   return Intl.Segmenter.supportedLocalesOf(locales, options);
+}
+
+export function _segmentIterator(segmenter, string) {
+  return segmenter.segment(string)[Symbol.iterator]();
 }
 
 export function _nextSegment(nothing, just, tuple, segments) {
