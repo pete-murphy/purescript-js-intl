@@ -2,6 +2,7 @@ module Test.Main where
 
 import Prelude
 
+import Data.Array as Array
 import Data.Array.NonEmpty as NonEmpty
 import Data.JSDate (JSDate)
 import Data.JSDate as JSDate
@@ -526,14 +527,11 @@ test_Segmenter = do
 
   Console.log "Segmenter.segment"
   Test.assertEqual
-    { actual: _.segment <$> Segmenter.segment segmenter "Hello, world!"
+    { actual: Segmenter.segment segmenter "Hello, world!"
+        # Array.mapMaybe \{ segment, isWordLike } ->
+            if isWordLike then Just segment else Nothing
     , expected:
-        [ "Hello"
-        , ","
-        , " "
-        , "world"
-        , "!"
-        ]
+        [ "Hello", "world" ]
     }
 
   Console.log "Segmenter.resolvedOptions"

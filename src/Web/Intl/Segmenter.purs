@@ -85,7 +85,7 @@ type Segment =
 
 foreign import data Segments :: Type
 
-foreign import _segment
+foreign import _segmentIterator
   :: Fn2
        Segmenter
        String
@@ -108,7 +108,7 @@ segment
 segment segmenter string =
   Unfoldable.unfoldr
     (Function.Uncurried.runFn4 _nextSegment Nothing Just (Function.Uncurried.mkFn2 Tuple))
-    (Function.Uncurried.runFn2 _segment segmenter string)
+    (Function.Uncurried.runFn2 _segmentIterator segmenter string)
 
 type ResolvedOptions =
   { locale :: String
