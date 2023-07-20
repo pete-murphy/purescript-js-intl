@@ -52,13 +52,13 @@ Now we can use the `Collator` module to sort a collection of strings by [natural
 or we can format a range of dates using `DateTimeFormat`,
 
 ```purs
-  dateTimeFormat <- DateTimeFormat.new locales { dateStyle: "full", timeZone: "UTC" }
+  dateTimeFormat <- DateTimeFormat.new locales { dateStyle: "medium", timeZone: "UTC" }
   let
-    maybeDate1 = JSDate.toDateTime (JSDate.fromTime 0.0)
+    maybeDate1 = JSDate.toDateTime (JSDate.fromTime 1689500000000.0)
     maybeDate2 = JSDate.toDateTime (JSDate.fromTime 1689832837416.0)
     formattedDateRange = Unsafe.unsafePartial case maybeDate1, maybeDate2 of
       Just date1, Just date2 -> DateTimeFormat.formatRange dateTimeFormat date1 date2
-  Console.logShow formattedDateRange -- "Thursday, January 1, 1970 – Thursday, July 20, 2023"
+  Console.logShow formattedDateRange -- "Jul 16 – 20, 2023"
 ```
 
 or use `NumberFormat` for formatting currencies for example.
@@ -71,4 +71,3 @@ or use `NumberFormat` for formatting currencies for example.
 ```
 
 More examples are in the `Test.Main` module.
-
