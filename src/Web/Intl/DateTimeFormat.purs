@@ -19,9 +19,11 @@ module Web.Intl.DateTimeFormat
 
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
+import Data.DateTime (DateTime)
 import Data.Function.Uncurried (Fn2, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.JSDate (JSDate)
+import Data.JSDate as JSDate
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
@@ -63,7 +65,10 @@ new
   -> Record options
   -> Effect DateTimeFormat
 new locales options =
-  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    (Unsafe.Coerce.unsafeCoerce options)
 
 new_
   :: NonEmptyArray Locale
@@ -84,7 +89,10 @@ supportedLocalesOf
   -> Record options
   -> Array String
 supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+  Function.Uncurried.runFn2
+    _supportedLocalesOf
+    (NonEmpty.toArray locales)
+    (Unsafe.Coerce.unsafeCoerce options)
 
 supportedLocalesOf_
   :: NonEmptyArray Locale
@@ -100,9 +108,9 @@ foreign import _format
 
 format
   :: DateTimeFormat
-  -> JSDate
+  -> DateTime
   -> String
-format = Function.Uncurried.runFn2 _format
+format fmt dateTime = Function.Uncurried.runFn2 _format fmt (JSDate.fromDateTime dateTime)
 
 foreign import _formatRange
   :: Fn3
@@ -113,10 +121,15 @@ foreign import _formatRange
 
 formatRange
   :: DateTimeFormat
-  -> JSDate
-  -> JSDate
+  -> DateTime
+  -> DateTime
   -> String
-formatRange = Function.Uncurried.runFn3 _formatRange
+formatRange fmt dateTime1 dateTime2 =
+  Function.Uncurried.runFn3
+    _formatRange
+    fmt
+    (JSDate.fromDateTime dateTime1)
+    (JSDate.fromDateTime dateTime2)
 
 foreign import _formatRangeToParts
   :: Fn3
@@ -127,10 +140,15 @@ foreign import _formatRangeToParts
 
 formatRangeToParts
   :: DateTimeFormat
-  -> JSDate
-  -> JSDate
+  -> DateTime
+  -> DateTime
   -> Array { type :: String, value :: String }
-formatRangeToParts = Function.Uncurried.runFn3 _formatRangeToParts
+formatRangeToParts fmt dateTime1 dateTime2 =
+  Function.Uncurried.runFn3
+    _formatRangeToParts
+    fmt
+    (JSDate.fromDateTime dateTime1)
+    (JSDate.fromDateTime dateTime2)
 
 foreign import _formatToParts
   :: Fn2
@@ -140,9 +158,13 @@ foreign import _formatToParts
 
 formatToParts
   :: DateTimeFormat
-  -> JSDate
+  -> DateTime
   -> Array { type :: String, value :: String }
-formatToParts = Function.Uncurried.runFn2 _formatToParts
+formatToParts fmt dateTime =
+  Function.Uncurried.runFn2
+    _formatToParts
+    fmt
+    (JSDate.fromDateTime dateTime)
 
 type ResolvedOptions =
   { locale :: String

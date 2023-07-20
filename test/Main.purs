@@ -4,14 +4,16 @@ import Prelude
 
 import Data.Array as Array
 import Data.Array.NonEmpty as NonEmpty
-import Data.JSDate (JSDate)
-import Data.JSDate as JSDate
+import Data.DateTime (DateTime)
+import Data.DateTime as DateTime
+import Data.DateTime.Instant as Instance
+import Data.Enum as Enum
 import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
 import Effect.Class.Console as Console
-import Record as Record
+import Partial.Unsafe as Unsafe
 import Test.Assert.Extended as Test
 import Web.Intl as Intl
 import Web.Intl.AvailableCanonical as AvailableCanonical
@@ -178,30 +180,38 @@ test_DateTimeFormat = do
     }
 
   format <- DateTimeFormat.new en_US { timeZone: "UTC" }
+
   let
-    mkDate :: { month :: Number, day :: Number, year :: Number } -> JSDate
-    mkDate = JSDate.jsdate <<< Record.merge
-      { hour: 12.0
-      , millisecond: 0.0
-      , minute: 0.0
-      , second: 0.0
-      }
-    date = mkDate { month: 11.0, day: 21.0, year: 2012.0 }
-    date' = mkDate { month: 7.0, day: 23.0, year: 2013.0 }
+    mkDate :: { year :: Int, month :: Int, day :: Int } -> DateTime
+    mkDate { year, month, day } = do
+      let
+        maybeDate =
+          DateTime.canonicalDate
+            <$> Enum.toEnum year
+            <*> Enum.toEnum month
+            <*> Enum.toEnum day
+        maybeDateTime =
+          Instance.toDateTime <<< Instance.fromDate <$> maybeDate
+      Unsafe.unsafePartial case maybeDateTime of
+        Just dateTime -> dateTime
+
+  let
+    date1 = mkDate { month: 12, day: 21, year: 2012 }
+    date2 = mkDate { month: 8, day: 23, year: 2013 }
 
   Console.log "DateTimeFormat.format"
   Test.assertEqual
-    { actual: DateTimeFormat.format format date
+    { actual: DateTimeFormat.format format date1
     , expected: "12/21/2012"
     }
 
   Console.log "DateTimeFormat.formatRange"
   Test.assertEqual
-    { actual: DateTimeFormat.formatRange format date date
+    { actual: DateTimeFormat.formatRange format date1 date1
     , expected: "12/21/2012"
     }
   Test.assertEqual
-    { actual: DateTimeFormat.formatRange format date date'
+    { actual: DateTimeFormat.formatRange format date1 date2
         # String.replaceAll (Pattern "\x2009") (Replacement " ")
     , expected: "12/21/2012 – 8/23/2013"
         # String.replaceAll (Pattern "\x2009") (Replacement " ")
@@ -209,7 +219,7 @@ test_DateTimeFormat = do
 
   Console.log "DateTimeFormat.formatRangeToParts"
   Test.assertEqual
-    { actual: DateTimeFormat.formatRangeToParts format date date
+    { actual: DateTimeFormat.formatRangeToParts format date1 date1
     , expected:
         [ { type: "month", value: "12" }
         , { type: "literal", value: "/" }
@@ -220,7 +230,7 @@ test_DateTimeFormat = do
     }
 
   Test.assertEqual
-    { actual: DateTimeFormat.formatRangeToParts format date date'
+    { actual: DateTimeFormat.formatRangeToParts format date1 date2
         <#> \part -> part { value = String.trim part.value }
     , expected:
         [ { type: "month", value: "12" }
@@ -239,7 +249,7 @@ test_DateTimeFormat = do
 
   Console.log "DateTimeFormat.formatToParts"
   Test.assertEqual
-    { actual: DateTimeFormat.formatToParts format date
+    { actual: DateTimeFormat.formatToParts format date1
     , expected:
         [ { type: "month", value: "12" }
         , { type: "literal", value: "/" }
