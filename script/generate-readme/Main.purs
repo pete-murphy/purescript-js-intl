@@ -32,7 +32,7 @@ main = Aff.launchAff_ do
       <|> FS.Aff.readTextFile UTF8 pathToExample'
 
   let
-    lines = (String.split (Pattern "\n") file)
+    lines = String.split (Pattern "\n") file
     groups = Array.groupBy ((==) `Function.on` Regex.test commentLinePrefix) lines
 
   Foldable.for_ groups \group -> do
@@ -40,15 +40,14 @@ main = Aff.launchAff_ do
       isCommentGroup = Regex.test commentLinePrefix (NonEmpty.head group)
       group' =
         if isCommentGroup then
-          map removeCommentLine group
+          map removeCommentLinePrefix group
         else surroundCodeblockDelimiters group
     Foldable.for_ group' \line ->
       Console.log line
 
-  pure unit
   where
-  removeCommentLine :: String -> String
-  removeCommentLine = Regex.replace commentLinePrefix ""
+  removeCommentLinePrefix :: String -> String
+  removeCommentLinePrefix = Regex.replace commentLinePrefix ""
 
   surroundCodeblockDelimiters :: NonEmptyArray String -> NonEmptyArray String
   surroundCodeblockDelimiters group =
