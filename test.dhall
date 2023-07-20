@@ -11,9 +11,8 @@ in      conf
               , "functions"
               , "js-date"
               , "prelude"
-              , "record"
               , "strings"
               , "unsafe-coerce"
               ]
-        , sources = conf.sources # [ "test/**/*.purs" ]
+        , sources = conf.sources # [ "test/**/*.purs", "example/**/*.purs" ]
         }
