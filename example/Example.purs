@@ -37,17 +37,19 @@ main = do
   --
   collator <- Collator.new locales { numeric: true }
   let
-    sortedStrings = Array.sortBy (Collator.compare collator) [ "Chapter 1", "Chapter 11", "Chapter 2" ]
+    sortedStrings =
+      Array.sortBy (Collator.compare collator) [ "Chapter 1", "Chapter 11", "Chapter 2" ]
   Console.logShow sortedStrings -- [ "Chapter 1", "Chapter 2", "Chapter 11" ]
   --
-  -- or we can format a date using `DateTimeFormat`,
+  -- or we can format a range of dates using `DateTimeFormat`,
   --
   dateTimeFormat <- DateTimeFormat.new locales { dateStyle: "full", timeZone: "UTC" }
   let
-    date = Unsafe.unsafePartial case JSDate.toDateTime (JSDate.fromTime 0.0) of
-      Just date' -> date'
-    formattedDate = DateTimeFormat.format dateTimeFormat date
-  Console.logShow formattedDate -- "Thursday, January 1, 1970"
+    maybeDate1 = JSDate.toDateTime (JSDate.fromTime 0.0)
+    maybeDate2 = JSDate.toDateTime (JSDate.fromTime 1689832837416.0)
+    formattedDateRange = Unsafe.unsafePartial case maybeDate1, maybeDate2 of
+      Just date1, Just date2 -> DateTimeFormat.formatRange dateTimeFormat date1 date2
+  Console.logShow formattedDateRange -- "Thursday, January 1, 1970 – Thursday, July 20, 2023"
   --
   -- or use `NumberFormat` for formatting currencies for example.
   --
