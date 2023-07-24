@@ -14,28 +14,37 @@ import Data.String.Regex (Regex)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as Regex.Flags
 import Data.String.Regex.Unsafe as Regex.Unsafe
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Class.Console as Console
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff as FS.Aff
 import Node.Path as Path
+import Partial.Unsafe as Unsafe
 
 main :: Effect Unit
 main = Aff.launchAff_ do
-  let
-    pathToExample = Path.concat [ "example", "Example.purs" ]
-    pathToExample' = Path.concat [ "..", "..", "example", "Example.purs" ]
+  templateFile <-
+    FS.Aff.readTextFile UTF8 (Path.concat [ "example", "README.template.md" ])
+      <|> FS.Aff.readTextFile UTF8 (Path.concat [ "..", "..", "example", "README.template.md" ])
 
-  file <-
-    FS.Aff.readTextFile UTF8 pathToExample
-      <|> FS.Aff.readTextFile UTF8 pathToExample'
+  exampleFile <-
+    FS.Aff.readTextFile UTF8 (Path.concat [ "example", "Example.purs" ])
+      <|> FS.Aff.readTextFile UTF8 (Path.concat [ "..", "..", "example", "Example.purs" ])
 
   let
-    lines = String.split (Pattern "\n") file
-    groups = Array.groupBy ((==) `Function.on` Regex.test commentLinePrefix) lines
+    Tuple beforeExample afterExample = case String.split (Pattern "<!-- EXAMPLE -->") templateFile of
+      [ before, after ] -> Tuple before after
+      _ -> Unsafe.unsafeCrashWith "Invalid template file"
+
+    lines = String.split (Pattern "\n") exampleFile
+    groups =
+      Array.groupBy ((==) `Function.on` Regex.test commentLinePrefix) lines
 
   Console.log "<!-- This file was generated using `script/generate-readme.sh` -->\n"
+
+  Console.log beforeExample
 
   Foldable.for_ groups \group -> do
     let
@@ -46,6 +55,8 @@ main = Aff.launchAff_ do
         else surroundCodeblockDelimiters group
     Foldable.for_ group' \line ->
       Console.log line
+
+  Console.log afterExample
 
   where
   removeCommentLinePrefix :: String -> String

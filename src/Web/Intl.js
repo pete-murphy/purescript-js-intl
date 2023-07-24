@@ -1,6 +1,6 @@
 "use strict";
 
-export function _getCanonicalLocales(just, nothing, locales) {
+export function _getCanonicalLocales(nothing, just, locales) {
   try {
     return just(Intl.getCanonicalLocales(locales));
   } catch (e) {

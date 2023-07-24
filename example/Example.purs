@@ -1,9 +1,3 @@
--- # `web-intl`
---
--- Low-level bindings for the ECMA 402 specification for the `Intl` object https://tc39.es/ecma402/#intl-object
---
--- ## How to use this library
--- 
 -- Assuming these imports
 -- 
 module Example where
@@ -57,6 +51,3 @@ main = do
   let
     formattedNumber = NumberFormat.format numberFormat 123456.789
   Console.logShow formattedNumber -- "$123,456.79"
---
--- More examples are in the `Test.Main` module.
---

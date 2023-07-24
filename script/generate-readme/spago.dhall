@@ -4,13 +4,16 @@
   , "arrays"
   , "console"
   , "control"
+  , "debug"
   , "effect"
   , "foldable-traversable"
   , "node-buffer"
   , "node-fs-aff"
   , "node-path"
+  , "partial"
   , "prelude"
   , "strings"
+  , "tuples"
   ]
 , packages = ./packages.dhall
 , sources = [ "./**/*.purs" ]
