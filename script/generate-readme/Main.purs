@@ -35,6 +35,8 @@ main = Aff.launchAff_ do
     lines = String.split (Pattern "\n") file
     groups = Array.groupBy ((==) `Function.on` Regex.test commentLinePrefix) lines
 
+  Console.log "<!-- This file was generated using `script/generate-readme.sh` -->\n"
+
   Foldable.for_ groups \group -> do
     let
       isCommentGroup = Regex.test commentLinePrefix (NonEmpty.head group)

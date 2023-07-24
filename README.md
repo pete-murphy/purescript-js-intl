@@ -1,3 +1,5 @@
+<!-- This file was generated using `script/generate-readme.sh` -->
+
 # `web-intl`
 
 Low-level bindings for the ECMA 402 specification for the `Intl` object https://tc39.es/ecma402/#intl-object
