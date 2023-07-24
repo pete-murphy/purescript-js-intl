@@ -1,12 +1,11 @@
-module Test.Main where
+module Test.Main (main) where
 
 import Prelude
 
 import Data.Array as Array
 import Data.Array.NonEmpty as NonEmpty
-import Data.DateTime (DateTime)
+import Data.DateTime (DateTime(..))
 import Data.DateTime as DateTime
-import Data.DateTime.Instant as Instance
 import Data.Enum as Enum
 import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), Replacement(..))
@@ -41,6 +40,17 @@ main = do
   test_PluralRules
   test_RelativeTimeFormat
   test_Segmenter
+
+-- NOTE: There are inconsistencies across platforms with how
+-- `DateTimeFormat.formatRange`, `DateTimeFormat.formatRangeToParts`,
+-- `NumberFormat.formatRange`, and `NumberFormat.formatRangeToParts` render the
+-- range separator. I'm using an M1 Mac, and locally I see thin spaces (U+2009)
+-- surrounding an en dash (U+2013), but in CI running `ubuntu-latest` there are
+-- regular spaces surrounding the en dash. To pass the tests in both
+-- environments, I'm replacing the thin spaces with regular spaces before
+-- comparing the actual and expected values.
+replaceThinSpaces :: String -> String
+replaceThinSpaces = String.replaceAll (Pattern "\x2009") (Replacement " ")
 
 test_Intl :: Effect Unit
 test_Intl = do
@@ -191,7 +201,7 @@ test_DateTimeFormat = do
             <*> Enum.toEnum month
             <*> Enum.toEnum day
         maybeDateTime =
-          Instance.toDateTime <<< Instance.fromDate <$> maybeDate
+          maybeDate <#> \date -> DateTime date bottom
       Unsafe.unsafePartial case maybeDateTime of
         Just dateTime -> dateTime
 
@@ -231,7 +241,7 @@ test_DateTimeFormat = do
 
   Test.assertEqual
     { actual: DateTimeFormat.formatRangeToParts format date1 date2
-        <#> \part -> part { value = String.trim part.value }
+        <#> \part -> part { value = replaceThinSpaces part.value }
     , expected:
         [ { type: "month", value: "12" }
         , { type: "literal", value: "/" }
@@ -244,7 +254,7 @@ test_DateTimeFormat = do
         , { type: "day", value: "23" }
         , { type: "literal", value: "/" }
         , { type: "year", value: "2013" }
-        ] <#> \part -> part { value = String.trim part.value }
+        ] <#> \part -> part { value = replaceThinSpaces part.value }
     }
 
   Console.log "DateTimeFormat.formatToParts"
@@ -411,15 +421,15 @@ test_NumberFormat = do
 -- Console.log "NumberFormat.formatRange"
 -- Test.assertEqual
 --   { actual: NumberFormat.formatRange format 123456.789 987654.321
---       # String.replaceAll (Pattern "\x2009") (Replacement " ")
+--       # replaceThinSpaces
 --   , expected: "$123,456.79–$987,654.32"
---       # String.replaceAll (Pattern "\x2009") (Replacement " ")
+--       # replaceThinSpaces
 --   }
 
 -- Console.log "NumberFormat.formatRangeToParts"
 -- Test.assertEqual
 --   { actual: NumberFormat.formatRangeToParts format 123456.789 987654.321
---       <#> \part -> part { value = String.trim part.value }
+--       <#> \part -> part { value = replaceThinSpaces part.value }
 --   , expected:
 --       [ { type: "currency", value: "$" }
 --       , { type: "integer", value: "123" }
@@ -435,7 +445,7 @@ test_NumberFormat = do
 --       , { type: "decimal", value: "." }
 --       , { type: "fraction", value: "32" }
 --       ]
---         <#> \part -> part { value = String.trim part.value }
+--         <#> \part -> part { value = replaceThinSpaces part.value }
 --   }
 
 test_PluralRules :: Effect Unit
