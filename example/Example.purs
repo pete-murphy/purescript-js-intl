@@ -27,7 +27,8 @@ main = do
   -- 
   let locales = NonEmpty.singleton en_US
   --
-  -- Now we can use the `Collator` module to sort a collection of strings by [natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order),
+  -- Now we can use the `Collator` module to sort a collection of strings by
+  -- [natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order),
   --
   collator <- Collator.new locales { numeric: true }
   let

@@ -20,6 +20,9 @@ import JS.Intl.DisplayNames as DisplayNames
 import JS.Intl.ListFormat as ListFormat
 import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher(..))
+import JS.Intl.Options.Sensitivity (Sensitivity(..))
+import JS.Intl.Options.Usage (Usage(..))
 import JS.Intl.PluralRules as PluralRules
 import JS.Intl.RelativeTimeFormat as RelativeTimeFormat
 import JS.Intl.RelativeTimeUnit (RelativeTimeUnit(..))
@@ -156,6 +159,24 @@ test_Collator = do
       , expected:
           { locale: "en-US"
           , usage: "sort"
+          , sensitivity: "base"
+          , ignorePunctuation: false
+          , collation: "default"
+          , numeric: false
+          , caseFirst: "false"
+          }
+      }
+
+  do
+    collator <- Collator.new en_US { sensitivity: Base, localeMatcher: Lookup, usage: Search }
+
+    Console.log "Collator.resolvedOptions"
+    resolvedOptions <- Collator.resolvedOptions collator
+    Test.assertEqual
+      { actual: resolvedOptions
+      , expected:
+          { locale: "en-US"
+          , usage: "search"
           , sensitivity: "base"
           , ignorePunctuation: false
           , collation: "default"

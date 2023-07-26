@@ -1,6 +1,7 @@
 { name = "js-intl"
 , dependencies =
   [ "arrays"
+  , "convertable-options"
   , "datetime"
   , "effect"
   , "functions"
@@ -8,6 +9,7 @@
   , "maybe"
   , "nullable"
   , "prelude"
+  , "record"
   , "tuples"
   , "unfoldable"
   , "unsafe-coerce"
