@@ -21,6 +21,7 @@ import Effect.Uncurried as Effect.Uncurried
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 
+-- | Represents a Unicode locale identifier
 foreign import data Locale :: Type
 
 type LocaleOptions =
@@ -62,6 +63,8 @@ foreign import _baseName
        Locale
        String
 
+-- | Returns basic, core information about the `Locale` in the form of a
+-- | substring of the complete data string
 baseName
   :: Locale
   -> String
@@ -73,6 +76,8 @@ foreign import _maximize
        Locale
        Locale
 
+-- | Gets the most likely values for the language, script, and region of the
+-- | locale based on existing values
 maximize :: Locale -> Locale
 maximize =
   Function.Uncurried.runFn1 _maximize
@@ -82,6 +87,8 @@ foreign import _minimize
        Locale
        Locale
 
+-- | Attempts to remove information about the locale that would be added by
+-- | calling `maximize`
 minimize
   :: Locale
   -> Locale

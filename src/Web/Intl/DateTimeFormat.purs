@@ -31,6 +31,7 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
+-- | Language-sensitive date and time formatting
 foreign import data DateTimeFormat :: Type
 
 type DateTimeFormatOptions =
@@ -106,6 +107,8 @@ foreign import _format
        JSDate
        String
 
+-- | Formats a date according to the locale and formatting options of the
+-- | `DateTimeFormat`
 format
   :: DateTimeFormat
   -> DateTime
@@ -119,6 +122,8 @@ foreign import _formatRange
        JSDate
        String
 
+-- | Formats a date range in the most concise way based on the locales and
+-- | options provided for this `DateTimeFormat` instance
 formatRange
   :: DateTimeFormat
   -> DateTime
@@ -138,6 +143,8 @@ foreign import _formatRangeToParts
        JSDate
        (Array { type :: String, value :: String })
 
+-- | Returns an array of locale-specific tokens representing each part of the
+-- | formatted date range produced by the `DateTimeFormat` instance
 formatRangeToParts
   :: DateTimeFormat
   -> DateTime
@@ -156,6 +163,8 @@ foreign import _formatToParts
        JSDate
        (Array { type :: String, value :: String })
 
+-- | Returns an array of locale-specific tokens representing each part of the
+-- | formatted date produced by the `DateTimeFormat` instance
 formatToParts
   :: DateTimeFormat
   -> DateTime

@@ -26,6 +26,7 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
+-- | Plural-sensitive formatting and plural-related language rules
 foreign import data PluralRules :: Type
 
 type PluralRulesOptions =
@@ -84,7 +85,11 @@ foreign import _select
        Int
        String
 
-select :: PluralRules -> Int -> String
+type PluralCategory = String -- TODO: Should be "zero", "one", "two" "few", "many", "other"
+
+-- | Returns a string indicating which plural rule to use for locale-aware
+-- | formatting
+select :: PluralRules -> Int -> PluralCategory
 select =
   Function.Uncurried.runFn2 _select
 
@@ -95,18 +100,20 @@ foreign import _selectRange
        Int
        String
 
+-- | Receives two values and returns a string indicating which plural rule to
+-- | use for locale-aware formatting
 selectRange
   :: PluralRules
   -> Int
   -> Int
-  -> String
+  -> PluralCategory
 selectRange =
   Function.Uncurried.runFn3 _selectRange
 
 type ResolvedOptions =
   { locale :: String
   , type :: String
-  , pluralCategories :: Array String
+  , pluralCategories :: Array PluralCategory
   }
 
 foreign import _resolvedOptions

@@ -29,8 +29,8 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
--- | A `Segmenter` instance enables locale-sensitive text segmentation, enabling
--- | you to get meaningful items (graphemes, words or sentences) from a string.
+-- | For locale-sensitive text segmentation, enabling you to get meaningful
+-- | items (graphemes, words or sentences) from a string.
 foreign import data Segmenter :: Type
 
 type SegmenterOptions =

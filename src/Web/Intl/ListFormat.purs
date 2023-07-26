@@ -26,6 +26,7 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
+-- | Language-sensitive list formatting
 foreign import data ListFormat :: Type
 
 type ListFormatOptions =
@@ -82,6 +83,7 @@ foreign import _format
        (Array String)
        String
 
+-- | Returns a string with a language-specific representation of the list
 format
   :: ListFormat
   -> Array String
@@ -94,6 +96,8 @@ foreign import _formatToParts
        (Array String)
        (Array { type :: String, value :: String })
 
+-- | Returns an array of objects representing the different components that can
+-- | be used to format a list of values in a locale-aware fashion
 formatToParts
   :: ListFormat
   -> Array String

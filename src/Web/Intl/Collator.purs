@@ -28,6 +28,7 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
+-- | Language-sensitive string comparison
 foreign import data Collator :: Type
 
 type CollatorOptions =
@@ -89,6 +90,7 @@ foreign import _compare
        String
        Number
 
+-- | Compare two strings according to the sort order of the `Collator`
 compare
   :: Collator
   -> String

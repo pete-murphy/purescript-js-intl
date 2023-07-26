@@ -27,6 +27,7 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
+-- | Consistent translation of language, region and script display names
 foreign import data DisplayNames :: Type
 
 type DisplayNamesOptions'Optional =
@@ -80,6 +81,8 @@ foreign import _of
        String
        (Nullable String)
 
+-- | Receives a code and returns a string based on the locale and options of the
+-- | `DisplayNames`
 of_
   :: DisplayNames
   -> String

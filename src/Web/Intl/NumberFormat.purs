@@ -28,6 +28,7 @@ import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
 import Web.Intl.Locale (Locale)
 
+-- | Language-sensitive number formatting
 foreign import data NumberFormat :: Type
 
 type NumberFormatOptions =
@@ -102,6 +103,8 @@ foreign import _format
        Number
        String
 
+-- | Formats a number according to the locale and formatting options of the
+-- | `NumberFormat`
 format :: NumberFormat -> Number -> String
 format = Function.Uncurried.runFn2 _format
 
@@ -112,6 +115,8 @@ foreign import _formatRange
        Number
        String
 
+-- | Formats a range of numbers according to the locale and formatting options
+-- | of the `NumberFormat`
 formatRange :: NumberFormat -> Number -> Number -> String
 formatRange = Function.Uncurried.runFn3 _formatRange
 
@@ -122,6 +127,9 @@ foreign import _formatRangeToParts
        Number
        (Array { type :: String, value :: String })
 
+-- | Returns an array of objects containing the locale-specific tokens from
+-- | which it is possible to build custom strings while preserving the
+-- | locale-specific parts
 formatRangeToParts :: NumberFormat -> Number -> Number -> Array { type :: String, value :: String }
 formatRangeToParts = Function.Uncurried.runFn3 _formatRangeToParts
 
@@ -131,6 +139,7 @@ foreign import _formatToParts
        Number
        (Array { type :: String, value :: String })
 
+-- | Allows locale-aware formatting of strings produced by the `NumberFormat`
 formatToParts :: NumberFormat -> Number -> Array { type :: String, value :: String }
 formatToParts = Function.Uncurried.runFn2 _formatToParts
 

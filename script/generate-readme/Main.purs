@@ -14,7 +14,6 @@ import Data.String.Regex (Regex)
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as Regex.Flags
 import Data.String.Regex.Unsafe as Regex.Unsafe
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Aff as Aff
 import Effect.Class.Console as Console
@@ -34,8 +33,8 @@ main = Aff.launchAff_ do
       <|> FS.Aff.readTextFile UTF8 (Path.concat [ "..", "..", "example", "Example.purs" ])
 
   let
-    Tuple beforeExample afterExample = case String.split (Pattern "<!-- EXAMPLE -->") templateFile of
-      [ before, after ] -> Tuple before after
+    example = case String.split (Pattern "<!-- EXAMPLE -->") templateFile of
+      [ before, after ] -> { before, after }
       _ -> Unsafe.unsafeCrashWith "Invalid template file"
 
     lines = String.split (Pattern "\n") exampleFile
@@ -44,7 +43,7 @@ main = Aff.launchAff_ do
 
   Console.log "<!-- This file was generated using `script/generate-readme.sh` -->\n"
 
-  Console.log beforeExample
+  Console.log example.before
 
   Foldable.for_ groups \group -> do
     let
@@ -56,7 +55,7 @@ main = Aff.launchAff_ do
     Foldable.for_ group' \line ->
       Console.log line
 
-  Console.log afterExample
+  Console.log example.after
 
   where
   removeCommentLinePrefix :: String -> String

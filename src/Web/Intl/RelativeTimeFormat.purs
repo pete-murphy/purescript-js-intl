@@ -28,6 +28,7 @@ import Web.Intl.Internal.Class.StringArg as StringArg
 import Web.Intl.Locale (Locale)
 import Web.Intl.RelativeTimeUnit (RelativeTimeUnit)
 
+-- | Language-sensitive relative time formatting
 foreign import data RelativeTimeFormat :: Type
 
 type RelativeTimeFormatOptions =
@@ -85,6 +86,8 @@ foreign import _format
        String
        String
 
+-- | Formats an `Int` value and `RelativeTimeUnit` according to the locale and
+-- | formatting options of the `RelativeTimeFormat`
 format
   :: RelativeTimeFormat
   -> Int
@@ -100,6 +103,8 @@ foreign import _formatToParts
        String
        (Array { type :: String, value :: String })
 
+-- | Returns an array of objects representing the relative time format in parts
+-- | that can be used for custom locale-aware formatting
 formatToParts
   :: RelativeTimeFormat
   -> Int
