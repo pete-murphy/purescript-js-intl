@@ -1,8 +1,8 @@
-module Web.Intl.AvailableCanonical
+module JS.Intl.AvailableCanonical
   ( AvailableCanonical(..)
   ) where
 
-import Web.Intl.Internal.Class.StringArg (class StringArg)
+import JS.Intl.Internal.Class.StringArg (class StringArg)
 
 -- | Valid keys to pass to `Intl.supportedValuesOf`
 -- | https://tc39.es/ecma402/#sec-intl.supportedvaluesof

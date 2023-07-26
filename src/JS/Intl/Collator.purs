@@ -1,4 +1,4 @@
-module Web.Intl.Collator
+module JS.Intl.Collator
   -- * Types
   ( Collator
   , CollatorOptions
@@ -23,10 +23,10 @@ import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import JS.Intl.Locale (Locale)
 import Prelude (compare) as Prelude
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.Locale (Locale)
 
 -- | Language-sensitive string comparison
 foreign import data Collator :: Type

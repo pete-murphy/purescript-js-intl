@@ -1,14 +1,12 @@
-{ name = "web-intl"
+{ name = "js-intl"
 , dependencies =
   [ "arrays"
   , "datetime"
   , "effect"
-  , "enums"
   , "functions"
   , "js-date"
   , "maybe"
   , "nullable"
-  , "partial"
   , "prelude"
   , "tuples"
   , "unfoldable"
@@ -17,5 +15,5 @@
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 , license = "MIT"
-, repository = "https://github.com/ptrfrncsmrph/purescript-web-intl.git"
+, repository = "https://github.com/ptrfrncsmrph/purescript-js-intl.git"
 }

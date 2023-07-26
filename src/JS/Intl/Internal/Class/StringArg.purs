@@ -1,4 +1,4 @@
-module Web.Intl.Internal.Class.StringArg
+module JS.Intl.Internal.Class.StringArg
   ( class StringArg
   , from
   ) where

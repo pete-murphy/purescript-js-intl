@@ -1,4 +1,4 @@
-module Web.Intl
+module JS.Intl
   ( module AvailableCanonical
   , getCanonicalLocales
   , supportedValuesOf
@@ -7,9 +7,9 @@ module Web.Intl
 import Data.Function.Uncurried (Fn1, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.Maybe (Maybe(..))
-import Web.Intl.AvailableCanonical (AvailableCanonical(..)) as AvailableCanonical
-import Web.Intl.AvailableCanonical (AvailableCanonical)
-import Web.Intl.Internal.Class.StringArg as StringArg
+import JS.Intl.AvailableCanonical (AvailableCanonical(..)) as AvailableCanonical
+import JS.Intl.AvailableCanonical (AvailableCanonical)
+import JS.Intl.Internal.Class.StringArg as StringArg
 
 foreign import _getCanonicalLocales
   :: Fn3

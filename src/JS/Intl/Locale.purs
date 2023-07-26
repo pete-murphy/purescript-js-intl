@@ -1,4 +1,4 @@
-module Web.Intl.Locale
+module JS.Intl.Locale
   -- * Types
   ( Locale
   , LocaleOptions

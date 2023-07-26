@@ -1,7 +1,7 @@
-module Web.Intl.PluralRules
+module JS.Intl.ListFormat
   -- * Types
-  ( PluralRules
-  , PluralRulesOptions
+  ( ListFormat
+  , ListFormatOptions
 
   -- * Constructor
   , new
@@ -10,63 +10,61 @@ module Web.Intl.PluralRules
   -- * Methods
   , supportedLocalesOf
   , supportedLocalesOf_
-  , select
-  , selectRange
+  , format
+  , formatToParts
   , resolvedOptions
   ) where
 
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
-import Data.Function.Uncurried (Fn2, Fn3)
+import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import JS.Intl.Locale (Locale)
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.Locale (Locale)
 
--- | Plural-sensitive formatting and plural-related language rules
-foreign import data PluralRules :: Type
+-- | Language-sensitive list formatting
+foreign import data ListFormat :: Type
 
-type PluralRulesOptions =
+type ListFormatOptions =
   ( localeMatcher :: String
   , type :: String
-  , minimumIntegerDigits :: Int
-  , minimumFractionDigits :: Int
-  , maximumFractionDigits :: Int
-  , minimumSignificantDigits :: Int
-  , maximumSignificantDigits :: Int
+  , style :: String
   )
 
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record PluralRulesOptions)
-       PluralRules
+       (Record ListFormatOptions)
+       ListFormat
 
 new
   :: forall options options'
-   . Union options options' PluralRulesOptions
+   . Union options options' ListFormatOptions
   => NonEmptyArray Locale
   -> Record options
-  -> Effect PluralRules
+  -> Effect ListFormat
 new locales options =
   Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
 
-new_ :: NonEmptyArray Locale -> Effect PluralRules
+new_
+  :: NonEmptyArray Locale
+  -> Effect ListFormat
 new_ locales =
   new locales {}
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record PluralRulesOptions)
+       (Record ListFormatOptions)
        (Array String)
 
 supportedLocalesOf
   :: forall options options'
-   . Union options options' PluralRulesOptions
+   . Union options options' ListFormatOptions
   => NonEmptyArray Locale
   -> Record options
   -> Array String
@@ -79,49 +77,45 @@ supportedLocalesOf_
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
 
-foreign import _select
+foreign import _format
   :: Fn2
-       PluralRules
-       Int
+       ListFormat
+       (Array String)
        String
 
-type PluralCategory = String -- TODO: Should be "zero", "one", "two" "few", "many", "other"
+-- | Returns a string with a language-specific representation of the list
+format
+  :: ListFormat
+  -> Array String
+  -> String
+format = Function.Uncurried.runFn2 _format
 
--- | Returns a string indicating which plural rule to use for locale-aware
--- | formatting
-select :: PluralRules -> Int -> PluralCategory
-select =
-  Function.Uncurried.runFn2 _select
+foreign import _formatToParts
+  :: Fn2
+       ListFormat
+       (Array String)
+       (Array { type :: String, value :: String })
 
-foreign import _selectRange
-  :: Fn3
-       PluralRules
-       Int
-       Int
-       String
-
--- | Receives two values and returns a string indicating which plural rule to
--- | use for locale-aware formatting
-selectRange
-  :: PluralRules
-  -> Int
-  -> Int
-  -> PluralCategory
-selectRange =
-  Function.Uncurried.runFn3 _selectRange
+-- | Returns an array of objects representing the different components that can
+-- | be used to format a list of values in a locale-aware fashion
+formatToParts
+  :: ListFormat
+  -> Array String
+  -> Array { type :: String, value :: String }
+formatToParts = Function.Uncurried.runFn2 _formatToParts
 
 type ResolvedOptions =
   { locale :: String
   , type :: String
-  , pluralCategories :: Array PluralCategory
+  , style :: String
   }
 
 foreign import _resolvedOptions
   :: EffectFn1
-       PluralRules
+       ListFormat
        ResolvedOptions
 
 resolvedOptions
-  :: PluralRules
+  :: ListFormat
   -> Effect ResolvedOptions
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions

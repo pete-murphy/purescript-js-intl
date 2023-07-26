@@ -12,20 +12,20 @@ import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
 import Effect.Class.Console as Console
+import JS.Intl as Intl
+import JS.Intl.AvailableCanonical as AvailableCanonical
+import JS.Intl.Collator as Collator
+import JS.Intl.DateTimeFormat as DateTimeFormat
+import JS.Intl.DisplayNames as DisplayNames
+import JS.Intl.ListFormat as ListFormat
+import JS.Intl.Locale as Locale
+import JS.Intl.NumberFormat as NumberFormat
+import JS.Intl.PluralRules as PluralRules
+import JS.Intl.RelativeTimeFormat as RelativeTimeFormat
+import JS.Intl.RelativeTimeUnit (RelativeTimeUnit(..))
+import JS.Intl.Segmenter as Segmenter
 import Partial.Unsafe as Unsafe
 import Test.Assert.Extended as Test
-import Web.Intl as Intl
-import Web.Intl.AvailableCanonical as AvailableCanonical
-import Web.Intl.Collator as Collator
-import Web.Intl.DateTimeFormat as DateTimeFormat
-import Web.Intl.DisplayNames as DisplayNames
-import Web.Intl.ListFormat as ListFormat
-import Web.Intl.Locale as Locale
-import Web.Intl.NumberFormat as NumberFormat
-import Web.Intl.PluralRules as PluralRules
-import Web.Intl.RelativeTimeFormat as RelativeTimeFormat
-import Web.Intl.RelativeTimeUnit (RelativeTimeUnit(..))
-import Web.Intl.Segmenter as Segmenter
 
 main :: Effect Unit
 main = do

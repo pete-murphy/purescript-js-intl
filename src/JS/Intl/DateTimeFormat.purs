@@ -1,4 +1,4 @@
-module Web.Intl.DateTimeFormat
+module JS.Intl.DateTimeFormat
   -- * Types
   ( DateTimeFormat
   , DateTimeFormatOptions
@@ -27,9 +27,9 @@ import Data.JSDate as JSDate
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import JS.Intl.Locale (Locale)
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.Locale (Locale)
 
 -- | Language-sensitive date and time formatting
 foreign import data DateTimeFormat :: Type

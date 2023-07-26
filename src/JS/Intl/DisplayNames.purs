@@ -1,4 +1,4 @@
-module Web.Intl.DisplayNames
+module JS.Intl.DisplayNames
   -- * Types
   ( DisplayNames
   , DisplayNamesOptions
@@ -23,9 +23,9 @@ import Data.Nullable as Nullable
 import Effect (Effect)
 import Effect.Uncurried (EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import JS.Intl.Locale (Locale)
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.Locale (Locale)
 
 -- | Consistent translation of language, region and script display names
 foreign import data DisplayNames :: Type

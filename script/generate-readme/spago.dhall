@@ -1,4 +1,4 @@
-{ name = "web-intl-script"
+{ name = "js-intl-script"
 , dependencies =
   [ "aff"
   , "arrays"
@@ -18,5 +18,5 @@
 , packages = ./packages.dhall
 , sources = [ "./**/*.purs" ]
 , license = "MIT"
-, repository = "https://github.com/ptrfrncsmrph/purescript-web-intl.git"
+, repository = "https://github.com/ptrfrncsmrph/purescript-js-intl.git"
 }

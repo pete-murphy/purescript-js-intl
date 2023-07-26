@@ -1,4 +1,4 @@
-module Web.Intl.RelativeTimeFormat
+module JS.Intl.RelativeTimeFormat
   -- * Types
   ( RelativeTimeFormat
   , RelativeTimeFormatOptions
@@ -22,11 +22,11 @@ import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import JS.Intl.Internal.Class.StringArg as StringArg
+import JS.Intl.Locale (Locale)
+import JS.Intl.RelativeTimeUnit (RelativeTimeUnit)
 import Prim.Row (class Union)
 import Unsafe.Coerce as Unsafe.Coerce
-import Web.Intl.Internal.Class.StringArg as StringArg
-import Web.Intl.Locale (Locale)
-import Web.Intl.RelativeTimeUnit (RelativeTimeUnit)
 
 -- | Language-sensitive relative time formatting
 foreign import data RelativeTimeFormat :: Type

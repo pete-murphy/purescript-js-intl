@@ -1,8 +1,8 @@
-module Web.Intl.RelativeTimeUnit
+module JS.Intl.RelativeTimeUnit
   ( RelativeTimeUnit(..)
   ) where
 
-import Web.Intl.Internal.Class.StringArg (class StringArg)
+import JS.Intl.Internal.Class.StringArg (class StringArg)
 
 data RelativeTimeUnit
   = Seconds

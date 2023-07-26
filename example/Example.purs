@@ -10,11 +10,11 @@ import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Class.Console as Console
+import JS.Intl.Collator as Collator
+import JS.Intl.DateTimeFormat as DateTimeFormat
+import JS.Intl.Locale as Locale
+import JS.Intl.NumberFormat as NumberFormat
 import Partial.Unsafe as Unsafe
-import Web.Intl.Collator as Collator
-import Web.Intl.DateTimeFormat as DateTimeFormat
-import Web.Intl.Locale as Locale
-import Web.Intl.NumberFormat as NumberFormat
 
 -- 
 -- we can construct a `Locale` using the `new` or `new_` constructors.
