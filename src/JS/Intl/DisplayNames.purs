@@ -2,8 +2,8 @@ module JS.Intl.DisplayNames
   -- * Types
   ( DisplayNames
   , DisplayNamesOptions
-  , DisplayNamesOptions'Required
   , DisplayNamesOptions'Optional
+  , ToDisplayNamesOptions
 
   -- * Constructor
   , new
@@ -13,6 +13,10 @@ module JS.Intl.DisplayNames
   , of_
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults, class Defaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2)
@@ -24,7 +28,16 @@ import Effect (Effect)
 import Effect.Uncurried (EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import JS.Intl.Locale (Locale)
-import Prim.Row (class Union)
+import JS.Intl.Options.DisplayNamesType (DisplayNamesType)
+import JS.Intl.Options.DisplayNamesType as DisplayNamesType
+import JS.Intl.Options.Fallback (Fallback)
+import JS.Intl.Options.Fallback as Fallback
+import JS.Intl.Options.LanguageDisplay (LanguageDisplay)
+import JS.Intl.Options.LanguageDisplay as LanguageDisplay
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
+import JS.Intl.Options.LocaleMatcher as LocaleMatcher
+import JS.Intl.Options.Style (Style)
+import JS.Intl.Options.Style as Style
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Consistent translation of language, region and script display names
@@ -37,43 +50,95 @@ type DisplayNamesOptions'Optional =
   , fallback :: String
   )
 
-type DisplayNamesOptions'Required options =
+type DisplayNamesOptions =
   ( type :: String
-  | options
+  | DisplayNamesOptions'Optional
   )
 
-type DisplayNamesOptions =
-  DisplayNamesOptions'Required DisplayNamesOptions'Optional
+defaultOptions :: { | DisplayNamesOptions'Optional }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
 
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record DisplayNamesOptions)
+       { | DisplayNamesOptions }
        DisplayNames
 
 new
-  :: forall options options'
-   . Union options options' DisplayNamesOptions'Optional
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToDisplayNamesOptions
+       { | DisplayNamesOptions'Optional }
+       { | provided }
+       { | DisplayNamesOptions }
   => NonEmptyArray Locale
-  -> Record (DisplayNamesOptions'Required options)
+  -> { | provided }
   -> Effect DisplayNames
-new locales options =
-  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | DisplayNamesOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToDisplayNamesOptions defaultOptions provided
+
+data ToDisplayNamesOptions = ToDisplayNamesOptions
+
+instance ConvertOption ToDisplayNamesOptions "type" DisplayNamesType String where
+  convertOption _ _ = DisplayNamesType.toString
+
+instance ConvertOption ToDisplayNamesOptions "type" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDisplayNamesOptions "localeMatcher" LocaleMatcher String where
+  convertOption _ _ = LocaleMatcher.toString
+
+instance ConvertOption ToDisplayNamesOptions "localeMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDisplayNamesOptions "style" Style String where
+  convertOption _ _ = Style.toString
+
+instance ConvertOption ToDisplayNamesOptions "style" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDisplayNamesOptions "languageDisplay" LanguageDisplay String where
+  convertOption _ _ = LanguageDisplay.toString
+
+instance ConvertOption ToDisplayNamesOptions "languageDisplay" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDisplayNamesOptions "fallback" Fallback String where
+  convertOption _ _ = Fallback.toString
+
+instance ConvertOption ToDisplayNamesOptions "fallback" String String where
+  convertOption _ _ = identity
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record DisplayNamesOptions)
+       { | DisplayNamesOptions }
        (Array String)
 
 supportedLocalesOf
-  :: forall options options'
-   . Union options options' DisplayNamesOptions'Optional
+  :: forall provided
+   . Defaults
+       { | DisplayNamesOptions'Optional }
+       { | provided }
+       { | DisplayNamesOptions }
   => NonEmptyArray Locale
-  -> { type :: String | options }
+  -> { | provided }
   -> Array String
-supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+supportedLocalesOf locales provided =
+  Function.Uncurried.runFn2
+    _supportedLocalesOf
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | DisplayNamesOptions }
+  options = ConvertableOptions.defaults defaultOptions provided
 
 foreign import _of
   :: Fn2
@@ -87,4 +152,5 @@ of_
   :: DisplayNames
   -> String
   -> Maybe String
-of_ displayNames key = Nullable.toMaybe (Function.Uncurried.runFn2 _of displayNames key)
+of_ displayNames key =
+  Nullable.toMaybe (Function.Uncurried.runFn2 _of displayNames key)

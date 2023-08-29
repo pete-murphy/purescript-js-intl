@@ -2,12 +2,11 @@ module JS.Intl.Collator
   -- * Types
   ( Collator
   , CollatorOptions
+  , ToCollatorOptions
 
   -- * Constructor
   , new
   , new_
-
-  , New
 
   -- * Methods
   , supportedLocalesOf
@@ -30,15 +29,15 @@ import Effect.Uncurried as Effect.Uncurried
 import JS.Intl.Locale (Locale)
 import JS.Intl.Options.CaseFirst (CaseFirst)
 import JS.Intl.Options.CaseFirst as CaseFirst
-import JS.Intl.Options.LocaleMatcher (LocaleMatcher(..))
+import JS.Intl.Options.Collation (Collation)
+import JS.Intl.Options.Collation as Collation
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
 import JS.Intl.Options.LocaleMatcher as LocaleMatcher
-import JS.Intl.Options.Sensitivity (Sensitivity(..))
+import JS.Intl.Options.Sensitivity (Sensitivity)
 import JS.Intl.Options.Sensitivity as Sensitivity
-import JS.Intl.Options.Usage (Usage(..))
+import JS.Intl.Options.Usage (Usage)
 import JS.Intl.Options.Usage as Usage
 import Prelude (compare) as Prelude
-import Prim.Row (class Nub, class Union)
-import Record as Record
 
 -- | Language-sensitive string comparison
 foreign import data Collator :: Type
@@ -53,26 +52,38 @@ type CollatorOptions =
   , collation :: String
   )
 
-defaultOptions :: Record CollatorOptions
+defaultOptions :: { | CollatorOptions }
 defaultOptions =
-  { localeMatcher: LocaleMatcher.toString BestFit
-  , usage: Usage.toString Sort
-  , sensitivity: Sensitivity.toString Variant
+  { localeMatcher: LocaleMatcher.toString LocaleMatcher.BestFit
+  , usage: Usage.toString Usage.Sort
+  , sensitivity: Sensitivity.toString Sensitivity.Variant
   , ignorePunctuation: false
   , numeric: false
   , caseFirst: CaseFirst.toString CaseFirst.False
-  , collation: "false"
+  , collation: Collation.toString Collation.Default
   }
 
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record CollatorOptions)
+       { | CollatorOptions }
        Collator
+
+new_
+  :: NonEmptyArray Locale
+  -> Effect Collator
+new_ locales =
+  new locales defaultOptions
+
+data ToCollatorOptions = ToCollatorOptions
 
 new
   :: forall provided
-   . ConvertOptionsWithDefaults New { | CollatorOptions } { | provided } { | CollatorOptions }
+   . ConvertOptionsWithDefaults
+       ToCollatorOptions
+       { | CollatorOptions }
+       { | provided }
+       { | CollatorOptions }
   => NonEmptyArray Locale
   -> { | provided }
   -> Effect Collator
@@ -81,73 +92,70 @@ new locales providedOptions =
     _new
     (NonEmpty.toArray locales)
     options
-
   where
   options :: { | CollatorOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults New defaultOptions providedOptions
+  options = ConvertableOptions.convertOptionsWithDefaults ToCollatorOptions defaultOptions providedOptions
 
-data New = New
-
-instance ConvertOption New "localeMatcher" LocaleMatcher String where
+instance ConvertOption ToCollatorOptions "localeMatcher" LocaleMatcher String where
   convertOption _ _ = LocaleMatcher.toString
 
-instance ConvertOption New "localeMatcher" String String where
+instance ConvertOption ToCollatorOptions "localeMatcher" String String where
   convertOption _ _ = identity
 
-instance ConvertOption New "usage" Usage String where
+instance ConvertOption ToCollatorOptions "usage" Usage String where
   convertOption _ _ = Usage.toString
 
-instance ConvertOption New "usage" String String where
+instance ConvertOption ToCollatorOptions "usage" String String where
   convertOption _ _ = identity
 
-instance ConvertOption New "sensitivity" Sensitivity String where
+instance ConvertOption ToCollatorOptions "sensitivity" Sensitivity String where
   convertOption _ _ = Sensitivity.toString
 
-instance ConvertOption New "sensitivity" String String where
+instance ConvertOption ToCollatorOptions "sensitivity" String String where
   convertOption _ _ = identity
 
-instance ConvertOption New "caseFirst" CaseFirst String where
+instance ConvertOption ToCollatorOptions "caseFirst" CaseFirst String where
   convertOption _ _ = CaseFirst.toString
 
-instance ConvertOption New "caseFirst" String String where
+instance ConvertOption ToCollatorOptions "caseFirst" String String where
   convertOption _ _ = identity
 
-instance ConvertOption New "collation" Boolean String where
-  convertOption _ _ = show
+instance ConvertOption ToCollatorOptions "collation" Collation String where
+  convertOption _ _ = Collation.toString
 
-instance ConvertOption New "collation" String String where
+instance ConvertOption ToCollatorOptions "collation" String String where
   convertOption _ _ = identity
 
-instance ConvertOption New "numeric" Boolean Boolean where
+instance ConvertOption ToCollatorOptions "numeric" Boolean Boolean where
   convertOption _ _ = identity
 
-instance ConvertOption New "ignorePunctuation" Boolean Boolean where
+instance ConvertOption ToCollatorOptions "ignorePunctuation" Boolean Boolean where
   convertOption _ _ = identity
-
-new_
-  :: NonEmptyArray Locale
-  -> Effect Collator
-new_ locales =
-  new locales defaultOptions
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record CollatorOptions)
+       { | CollatorOptions }
        (Array String)
 
 supportedLocalesOf
-  :: forall provided options
-   . Union provided CollatorOptions options
-  => Nub options CollatorOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToCollatorOptions
+       { | CollatorOptions }
+       { | provided }
+       { | CollatorOptions }
   => NonEmptyArray Locale
-  -> Record provided
+  -> { | provided }
   -> Array String
 supportedLocalesOf locales providedOptions =
   Function.Uncurried.runFn2
     _supportedLocalesOf
     (NonEmpty.toArray locales)
-    (Record.merge providedOptions defaultOptions)
+    options
+  where
+  options :: { | CollatorOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToCollatorOptions defaultOptions providedOptions
 
 supportedLocalesOf_
   :: NonEmptyArray Locale

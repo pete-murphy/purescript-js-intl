@@ -2,6 +2,7 @@ module JS.Intl.Segmenter
   -- * Types
   ( Segmenter
   , SegmenterOptions
+  , ToSegmenterOptions
 
   -- * Constructor
   , new
@@ -14,6 +15,10 @@ module JS.Intl.Segmenter
   , segment
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2, Fn4)
@@ -26,7 +31,10 @@ import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import JS.Intl.Locale (Locale)
-import Prim.Row (class Union)
+import JS.Intl.Options.Granularity (Granularity)
+import JS.Intl.Options.Granularity as Granularity
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
+import JS.Intl.Options.LocaleMatcher as LocaleMatcher
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | For locale-sensitive text segmentation, enabling you to get meaningful
@@ -38,45 +46,83 @@ type SegmenterOptions =
   , granularity :: String
   )
 
+defaultOptions :: { | SegmenterOptions }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record SegmenterOptions)
+       { | SegmenterOptions }
        Segmenter
 
+data ToSegmenterOptions = ToSegmenterOptions
+
 new
-  :: forall options options'
-   . Union options options' SegmenterOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToSegmenterOptions
+       { | SegmenterOptions }
+       { | provided }
+       { | SegmenterOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Effect Segmenter
-new locales options =
-  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | SegmenterOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToSegmenterOptions defaultOptions provided
+
+instance ConvertOption ToSegmenterOptions "localeMatcher" LocaleMatcher String where
+  convertOption _ _ = LocaleMatcher.toString
+
+instance ConvertOption ToSegmenterOptions "localeMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToSegmenterOptions "granularity" Granularity String where
+  convertOption _ _ = Granularity.toString
+
+instance ConvertOption ToSegmenterOptions "granularity" String String where
+  convertOption _ _ = identity
 
 new_ :: NonEmptyArray Locale -> Effect Segmenter
 new_ locales =
-  new locales {}
+  new locales defaultOptions
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record SegmenterOptions)
+       { | SegmenterOptions }
        (Array String)
 
 supportedLocalesOf
-  :: forall options options'
-   . Union options options' SegmenterOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToSegmenterOptions
+       { | SegmenterOptions }
+       { | provided }
+       { | SegmenterOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Array String
-supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+supportedLocalesOf locales provided =
+  Function.Uncurried.runFn2
+    _supportedLocalesOf
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | SegmenterOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToSegmenterOptions defaultOptions provided
 
 supportedLocalesOf_
   :: NonEmptyArray Locale
   -> Array String
 supportedLocalesOf_ locales =
-  supportedLocalesOf locales {}
+  supportedLocalesOf locales defaultOptions
 
 type Segment =
   { segment :: String

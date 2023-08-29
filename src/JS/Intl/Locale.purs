@@ -2,6 +2,7 @@ module JS.Intl.Locale
   -- * Types
   ( Locale
   , LocaleOptions
+  , ToLocaleOptions
 
   -- * Constructor
   , new
@@ -13,50 +14,105 @@ module JS.Intl.Locale
   , minimize
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Function.Uncurried (Fn1)
 import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
 import Effect.Uncurried (EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
-import Prim.Row (class Union)
+import JS.Intl.Options.CaseFirst (CaseFirst)
+import JS.Intl.Options.CaseFirst as CaseFirst
+import JS.Intl.Options.HourCycle (HourCycle)
+import JS.Intl.Options.HourCycle as HourCycle
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Represents a Unicode locale identifier
 foreign import data Locale :: Type
 
 type LocaleOptions =
-  ( baseName :: String
-  , calendar :: String
-  , caseFirst :: String
+  ( calendar :: String
   , collation :: String
   , hourCycle :: String
-  , language :: String
-  , numberingSystem :: String
+  , caseFirst :: String
   , numeric :: Boolean
-  , region :: String
+  , numberingSystem :: String
+  , language :: String
   , script :: String
+  , region :: String
   )
+
+defaultOptions :: { | LocaleOptions }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
 
 foreign import _new
   :: EffectFn2
        String
-       (Record LocaleOptions)
+       { | LocaleOptions }
        Locale
-
-new
-  :: forall options options'
-   . Union options options' LocaleOptions
-  => String
-  -> Record options
-  -> Effect Locale
-new locales options =
-  Effect.Uncurried.runEffectFn2 _new locales (Unsafe.Coerce.unsafeCoerce options)
 
 new_
   :: String
   -> Effect Locale
 new_ locales =
-  new locales {}
+  new locales defaultOptions
+
+data ToLocaleOptions = ToLocaleOptions
+
+new
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToLocaleOptions
+       { | LocaleOptions }
+       { | provided }
+       { | LocaleOptions }
+  => String
+  -> { | provided }
+  -> Effect Locale
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    locales
+    options
+  where
+  options :: { | LocaleOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToLocaleOptions defaultOptions provided
+
+instance ConvertOption ToLocaleOptions "calendar" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "collation" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "hourCycle" HourCycle String where
+  convertOption _ _ = HourCycle.toString
+
+instance ConvertOption ToLocaleOptions "hourCycle" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "caseFirst" CaseFirst String where
+  convertOption _ _ = CaseFirst.toString
+
+instance ConvertOption ToLocaleOptions "caseFirst" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "numeric" Boolean Boolean where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "numberingSystem" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "language" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "script" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToLocaleOptions "region" String String where
+  convertOption _ _ = identity
 
 foreign import _baseName
   :: Fn1

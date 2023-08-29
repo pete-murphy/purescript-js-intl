@@ -12,23 +12,27 @@ import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
 import Effect.Class.Console as Console
+import Foreign as Foreign
 import JS.Intl as Intl
-import JS.Intl.AvailableCanonical as AvailableCanonical
 import JS.Intl.Collator as Collator
 import JS.Intl.DateTimeFormat as DateTimeFormat
 import JS.Intl.DisplayNames as DisplayNames
 import JS.Intl.ListFormat as ListFormat
 import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
+import JS.Intl.Options.AvailableCanonical as AvailableCanonical
+import JS.Intl.Options.DateStyle as DateStyle
 import JS.Intl.Options.LocaleMatcher (LocaleMatcher(..))
+import JS.Intl.Options.RelativeTimeUnit (RelativeTimeUnit(..))
 import JS.Intl.Options.Sensitivity (Sensitivity(..))
+import JS.Intl.Options.TimeStyle as TimeStyle
 import JS.Intl.Options.Usage (Usage(..))
 import JS.Intl.PluralRules as PluralRules
 import JS.Intl.RelativeTimeFormat as RelativeTimeFormat
-import JS.Intl.RelativeTimeUnit (RelativeTimeUnit(..))
 import JS.Intl.Segmenter as Segmenter
 import Partial.Unsafe as Unsafe
 import Test.Assert.Extended as Test
+import Unsafe.Coerce as Unsafe.Coerce
 
 main :: Effect Unit
 main = do
@@ -210,8 +214,6 @@ test_DateTimeFormat = do
     , expected: [ "en-US", "es-MX" ]
     }
 
-  format <- DateTimeFormat.new en_US { timeZone: "UTC" }
-
   let
     mkDate :: { year :: Int, month :: Int, day :: Int } -> DateTime
     mkDate { year, month, day } = do
@@ -230,80 +232,214 @@ test_DateTimeFormat = do
     date1 = mkDate { month: 12, day: 21, year: 2012 }
     date2 = mkDate { month: 8, day: 23, year: 2013 }
 
-  Console.log "DateTimeFormat.format"
-  Test.assertEqual
-    { actual: DateTimeFormat.format format date1
-    , expected: "12/21/2012"
-    }
+  do
+    format <- DateTimeFormat.new en_US { timeZone: "UTC" }
 
-  Console.log "DateTimeFormat.formatRange"
-  Test.assertEqual
-    { actual: DateTimeFormat.formatRange format date1 date1
-    , expected: "12/21/2012"
-    }
-  Test.assertEqual
-    { actual: DateTimeFormat.formatRange format date1 date2
-        # String.replaceAll (Pattern "\x2009") (Replacement " ")
-    , expected: "12/21/2012 – 8/23/2013"
-        # String.replaceAll (Pattern "\x2009") (Replacement " ")
-    }
+    Console.log "DateTimeFormat.format"
+    Test.assertEqual
+      { actual: DateTimeFormat.format format date1
+      , expected: "12/21/2012"
+      }
 
-  Console.log "DateTimeFormat.formatRangeToParts"
-  Test.assertEqual
-    { actual: DateTimeFormat.formatRangeToParts format date1 date1
-    , expected:
-        [ { type: "month", value: "12" }
-        , { type: "literal", value: "/" }
-        , { type: "day", value: "21" }
-        , { type: "literal", value: "/" }
-        , { type: "year", value: "2012" }
-        ]
-    }
+    Console.log "DateTimeFormat.formatRange"
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRange format date1 date1
+      , expected: "12/21/2012"
+      }
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRange format date1 date2
+          # String.replaceAll (Pattern "\x2009") (Replacement " ")
+      , expected: "12/21/2012 – 8/23/2013"
+          # String.replaceAll (Pattern "\x2009") (Replacement " ")
+      }
 
-  Test.assertEqual
-    { actual: DateTimeFormat.formatRangeToParts format date1 date2
-        <#> \part -> part { value = replaceThinSpaces part.value }
-    , expected:
-        [ { type: "month", value: "12" }
-        , { type: "literal", value: "/" }
-        , { type: "day", value: "21" }
-        , { type: "literal", value: "/" }
-        , { type: "year", value: "2012" }
-        , { type: "literal", value: " – " }
-        , { type: "month", value: "8" }
-        , { type: "literal", value: "/" }
-        , { type: "day", value: "23" }
-        , { type: "literal", value: "/" }
-        , { type: "year", value: "2013" }
-        ] <#> \part -> part { value = replaceThinSpaces part.value }
-    }
+    Console.log "DateTimeFormat.formatRangeToParts"
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRangeToParts format date1 date1
+      , expected:
+          [ { type: "month", value: "12" }
+          , { type: "literal", value: "/" }
+          , { type: "day", value: "21" }
+          , { type: "literal", value: "/" }
+          , { type: "year", value: "2012" }
+          ]
+      }
 
-  Console.log "DateTimeFormat.formatToParts"
-  Test.assertEqual
-    { actual: DateTimeFormat.formatToParts format date1
-    , expected:
-        [ { type: "month", value: "12" }
-        , { type: "literal", value: "/" }
-        , { type: "day", value: "21" }
-        , { type: "literal", value: "/" }
-        , { type: "year", value: "2012" }
-        ]
-    }
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRangeToParts format date1 date2
+          <#> \part -> part { value = replaceThinSpaces part.value }
+      , expected:
+          [ { type: "month", value: "12" }
+          , { type: "literal", value: "/" }
+          , { type: "day", value: "21" }
+          , { type: "literal", value: "/" }
+          , { type: "year", value: "2012" }
+          , { type: "literal", value: " – " }
+          , { type: "month", value: "8" }
+          , { type: "literal", value: "/" }
+          , { type: "day", value: "23" }
+          , { type: "literal", value: "/" }
+          , { type: "year", value: "2013" }
+          ] <#> \part -> part { value = replaceThinSpaces part.value }
+      }
 
-  Console.log "DateTimeFormat.resolvedOptions"
-  resolvedOptions <- DateTimeFormat.resolvedOptions format
-  Test.assertEqual
-    { actual: resolvedOptions
-    , expected:
-        { locale: "en-US"
-        , calendar: "gregory"
-        , numberingSystem: "latn"
-        , timeZone: "UTC"
-        , year: "numeric"
-        , month: "numeric"
-        , day: "numeric"
-        }
-    }
+    Console.log "DateTimeFormat.formatToParts"
+    Test.assertEqual
+      { actual: DateTimeFormat.formatToParts format date1
+      , expected:
+          [ { type: "month", value: "12" }
+          , { type: "literal", value: "/" }
+          , { type: "day", value: "21" }
+          , { type: "literal", value: "/" }
+          , { type: "year", value: "2012" }
+          ]
+      }
+
+    Console.log "DateTimeFormat.resolvedOptions"
+    resolvedOptions <- DateTimeFormat.resolvedOptions format
+    Test.assertEqual
+      { actual: (Foreign.unsafeFromForeign resolvedOptions)
+      , expected:
+          { locale: "en-US"
+          , calendar: "gregory"
+          , numberingSystem: "latn"
+          , timeZone: "UTC"
+          , year: "numeric"
+          , month: "numeric"
+          , day: "numeric"
+          }
+      }
+
+  do
+    format <- DateTimeFormat.new en_US
+      { timeZone: "UTC"
+      , dateStyle: DateStyle.Full
+      , timeStyle: TimeStyle.Full
+      }
+
+    Console.log "DateTimeFormat.format"
+    Test.assertEqual
+      { actual: DateTimeFormat.format format date1
+      , expected: "Friday, December 21, 2012 at 12:00:00 AM Coordinated Universal Time"
+      }
+
+    Console.log "DateTimeFormat.formatRange"
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRange format date1 date1
+      , expected: "Friday, December 21, 2012 at 12:00:00 AM Coordinated Universal Time"
+      }
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRange format date1 date2
+          # String.replaceAll (Pattern "\x2009") (Replacement " ")
+      , expected: "Friday, December 21, 2012 at 12:00:00 AM Coordinated Universal Time – Friday, August 23, 2013 at 12:00:00 AM Coordinated Universal Time"
+          # String.replaceAll (Pattern "\x2009") (Replacement " ")
+      }
+
+    Console.log "DateTimeFormat.formatRangeToParts"
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRangeToParts format date1 date1
+      , expected:
+          [ { type: "weekday", value: "Friday" }
+          , { type: "literal", value: ", " }
+          , { type: "month", value: "December" }
+          , { type: "literal", value: " " }
+          , { type: "day", value: "21" }
+          , { type: "literal", value: ", " }
+          , { type: "year", value: "2012" }
+          , { type: "literal", value: " at " }
+          , { type: "hour", value: "12" }
+          , { type: "literal", value: ":" }
+          , { type: "minute", value: "00" }
+          , { type: "literal", value: ":" }
+          , { type: "second", value: "00" }
+          , { type: "literal", value: " " }
+          , { type: "dayPeriod", value: "AM" }
+          , { type: "literal", value: " " }
+          , { type: "timeZoneName", value: "Coordinated Universal Time" }
+          ]
+      }
+
+    Test.assertEqual
+      { actual: DateTimeFormat.formatRangeToParts format date1 date2
+          <#> \part -> part { value = replaceThinSpaces part.value }
+      , expected:
+          [ { type: "weekday", value: "Friday" }
+          , { type: "literal", value: ", " }
+          , { type: "month", value: "December" }
+          , { type: "literal", value: " " }
+          , { type: "day", value: "21" }
+          , { type: "literal", value: ", " }
+          , { type: "year", value: "2012" }
+          , { type: "literal", value: " at " }
+          , { type: "hour", value: "12" }
+          , { type: "literal", value: ":" }
+          , { type: "minute", value: "00" }
+          , { type: "literal", value: ":" }
+          , { type: "second", value: "00" }
+          , { type: "literal", value: " " }
+          , { type: "dayPeriod", value: "AM" }
+          , { type: "literal", value: " " }
+          , { type: "timeZoneName", value: "Coordinated Universal Time" }
+          , { type: "literal", value: " – " }
+          , { type: "weekday", value: "Friday" }
+          , { type: "literal", value: ", " }
+          , { type: "month", value: "August" }
+          , { type: "literal", value: " " }
+          , { type: "day", value: "23" }
+          , { type: "literal", value: ", " }
+          , { type: "year", value: "2013" }
+          , { type: "literal", value: " at " }
+          , { type: "hour", value: "12" }
+          , { type: "literal", value: ":" }
+          , { type: "minute", value: "00" }
+          , { type: "literal", value: ":" }
+          , { type: "second", value: "00" }
+          , { type: "literal", value: " " }
+          , { type: "dayPeriod", value: "AM" }
+          , { type: "literal", value: " " }
+          , { type: "timeZoneName", value: "Coordinated Universal Time" }
+          ] <#> \part -> part { value = replaceThinSpaces part.value }
+      }
+
+    Console.log "DateTimeFormat.formatToParts"
+    Test.assertEqual
+      { actual: DateTimeFormat.formatToParts format date1
+      , expected:
+          [ { type: "weekday", value: "Friday" }
+          , { type: "literal", value: ", " }
+          , { type: "month", value: "December" }
+          , { type: "literal", value: " " }
+          , { type: "day", value: "21" }
+          , { type: "literal", value: ", " }
+          , { type: "year", value: "2012" }
+          , { type: "literal", value: " at " }
+          , { type: "hour", value: "12" }
+          , { type: "literal", value: ":" }
+          , { type: "minute", value: "00" }
+          , { type: "literal", value: ":" }
+          , { type: "second", value: "00" }
+          , { type: "literal", value: " " }
+          , { type: "dayPeriod", value: "AM" }
+          , { type: "literal", value: " " }
+          , { type: "timeZoneName", value: "Coordinated Universal Time" }
+          ]
+      }
+
+    Console.log "DateTimeFormat.resolvedOptions"
+    resolvedOptions <- DateTimeFormat.resolvedOptions format
+    Test.assertEqual
+      { actual: (Foreign.unsafeFromForeign resolvedOptions)
+      , expected:
+          { locale: "en-US"
+          , calendar: "gregory"
+          , numberingSystem: "latn"
+          , timeZone: "UTC"
+          , hourCycle: "h12"
+          , hour12: true
+          , dateStyle: "full"
+          , timeStyle: "full"
+          }
+      }
 
 test_DisplayNames :: Effect Unit
 test_DisplayNames = do
@@ -420,7 +556,7 @@ test_NumberFormat = do
   resolvedOptions <- NumberFormat.resolvedOptions format
 
   Test.assertEqual
-    { actual: resolvedOptions
+    { actual: (Unsafe.Coerce.unsafeCoerce resolvedOptions)
     , expected:
         { locale: "en-US"
         , numberingSystem: "latn"

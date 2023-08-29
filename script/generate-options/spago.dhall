@@ -1,0 +1,31 @@
+{ name = "js-intl-script"
+, dependencies =
+  [ "aff"
+  , "arrays"
+  , "console"
+  , "control"
+  , "debug"
+  , "effect"
+  , "exceptions"
+  , "foldable-traversable"
+  , "foreign-object"
+  , "language-cst-parser"
+  , "maybe"
+  , "node-buffer"
+  , "node-fs"
+  , "node-fs-aff"
+  , "node-path"
+  , "node-process"
+  , "partial"
+  , "prelude"
+  , "strings"
+  , "tidy"
+  , "tidy-codegen"
+  , "transformers"
+  , "tuples"
+  ]
+, packages = ./packages.dhall
+, sources = [ "./**/*.purs" ]
+, license = "MIT"
+, repository = "https://github.com/ptrfrncsmrph/purescript-js-intl.git"
+}

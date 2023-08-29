@@ -1,0 +1,70 @@
+let upstream =
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.9-20230718/packages.dhall
+        sha256:661c257c997f37bba1b169020a87ae6ea08eb998e931875cb92e86ac9ea26846
+
+in  upstream
+  with tidy =
+    { dependencies =
+      [ "arrays"
+      , "dodo-printer"
+      , "foldable-traversable"
+      , "lists"
+      , "maybe"
+      , "ordered-collections"
+      , "partial"
+      , "prelude"
+      , "language-cst-parser"
+      , "strings"
+      , "tuples"
+      ]
+    , repo = "https://github.com/natefaubion/purescript-tidy.git"
+    , version = "v0.10.0"
+    }
+  with tidy-codegen =
+    { dependencies =
+      [ "aff"
+      , "ansi"
+      , "arrays"
+      , "avar"
+      , "bifunctors"
+      , "console"
+      , "control"
+      , "dodo-printer"
+      , "effect"
+      , "either"
+      , "enums"
+      , "exceptions"
+      , "filterable"
+      , "foldable-traversable"
+      , "free"
+      , "identity"
+      , "integers"
+      , "language-cst-parser"
+      , "lazy"
+      , "lists"
+      , "maybe"
+      , "newtype"
+      , "node-buffer"
+      , "node-child-process"
+      , "node-fs-aff"
+      , "node-path"
+      , "node-process"
+      , "node-streams"
+      , "ordered-collections"
+      , "parallel"
+      , "partial"
+      , "posix-types"
+      , "prelude"
+      , "record"
+      , "safe-coerce"
+      , "st"
+      , "strings"
+      , "tidy"
+      , "transformers"
+      , "tuples"
+      , "type-equality"
+      , "unicode"
+      ]
+    , repo = "https://github.com/natefaubion/purescript-tidy-codegen"
+    , version = "v4.0.0"
+    }
