@@ -2,6 +2,7 @@ module JS.Intl.DateTimeFormat
   -- * Types
   ( DateTimeFormat
   , DateTimeFormatOptions
+  , ToDateTimeFormatOptions
 
   -- * Constructor
   , new
@@ -17,6 +18,10 @@ module JS.Intl.DateTimeFormat
   , resolvedOptions
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
 import Data.DateTime (DateTime)
@@ -27,8 +32,38 @@ import Data.JSDate as JSDate
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import Foreign (Foreign)
 import JS.Intl.Locale (Locale)
-import Prim.Row (class Union)
+import JS.Intl.Options.DateStyle (DateStyle)
+import JS.Intl.Options.DateStyle as DateStyle
+import JS.Intl.Options.Day (Day)
+import JS.Intl.Options.Day as Day
+import JS.Intl.Options.DayPeriod (DayPeriod)
+import JS.Intl.Options.DayPeriod as DayPeriod
+import JS.Intl.Options.Era (Era)
+import JS.Intl.Options.Era as Era
+import JS.Intl.Options.FormatMatcher (FormatMatcher)
+import JS.Intl.Options.FormatMatcher as FormatMatcher
+import JS.Intl.Options.Hour (Hour)
+import JS.Intl.Options.Hour as Hour
+import JS.Intl.Options.HourCycle (HourCycle)
+import JS.Intl.Options.HourCycle as HourCycle
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
+import JS.Intl.Options.LocaleMatcher as LocaleMatcher
+import JS.Intl.Options.Minute (Minute)
+import JS.Intl.Options.Minute as Minute
+import JS.Intl.Options.Month (Month)
+import JS.Intl.Options.Month as Month
+import JS.Intl.Options.Second (Second)
+import JS.Intl.Options.Second as Second
+import JS.Intl.Options.TimeStyle (TimeStyle)
+import JS.Intl.Options.TimeStyle as TimeStyle
+import JS.Intl.Options.TimeZoneName (TimeZoneName)
+import JS.Intl.Options.TimeZoneName as TimeZoneName
+import JS.Intl.Options.Weekday (Weekday)
+import JS.Intl.Options.Weekday as Weekday
+import JS.Intl.Options.Year (Year)
+import JS.Intl.Options.Year as Year
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Language-sensitive date and time formatting
@@ -44,56 +79,177 @@ type DateTimeFormatOptions =
   , hour :: String
   , minute :: String
   , second :: String
+  , dayPeriod :: String
   , timeZoneName :: String
   , formatMatcher :: String
   , hour12 :: Boolean
   , timeZone :: String
   , hourCycle :: String
+  , fractionalSecondDigits :: Int
   , dateStyle :: String
   , timeStyle :: String
   )
 
+defaultOptions :: { | DateTimeFormatOptions }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record DateTimeFormatOptions)
+       { | DateTimeFormatOptions }
        DateTimeFormat
-
-new
-  :: forall options options'
-   . Union options options' DateTimeFormatOptions
-  => NonEmptyArray Locale
-  -> Record options
-  -> Effect DateTimeFormat
-new locales options =
-  Effect.Uncurried.runEffectFn2
-    _new
-    (NonEmpty.toArray locales)
-    (Unsafe.Coerce.unsafeCoerce options)
 
 new_
   :: NonEmptyArray Locale
   -> Effect DateTimeFormat
 new_ locales =
-  new locales {}
+  new locales defaultOptions
+
+data ToDateTimeFormatOptions = ToDateTimeFormatOptions
+
+new
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToDateTimeFormatOptions
+       { | DateTimeFormatOptions }
+       { | provided }
+       { | DateTimeFormatOptions }
+  => NonEmptyArray Locale
+  -> { | provided }
+  -> Effect DateTimeFormat
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | DateTimeFormatOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToDateTimeFormatOptions defaultOptions provided
+
+instance ConvertOption ToDateTimeFormatOptions "localeMatcher" LocaleMatcher String where
+  convertOption _ _ = LocaleMatcher.toString
+
+instance ConvertOption ToDateTimeFormatOptions "localeMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "weekday" Weekday String where
+  convertOption _ _ = Weekday.toString
+
+instance ConvertOption ToDateTimeFormatOptions "weekday" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "era" Era String where
+  convertOption _ _ = Era.toString
+
+instance ConvertOption ToDateTimeFormatOptions "era" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "year" Year String where
+  convertOption _ _ = Year.toString
+
+instance ConvertOption ToDateTimeFormatOptions "year" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "month" Month String where
+  convertOption _ _ = Month.toString
+
+instance ConvertOption ToDateTimeFormatOptions "month" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "day" Day String where
+  convertOption _ _ = Day.toString
+
+instance ConvertOption ToDateTimeFormatOptions "day" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "hour" Hour String where
+  convertOption _ _ = Hour.toString
+
+instance ConvertOption ToDateTimeFormatOptions "hour" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "minute" Minute String where
+  convertOption _ _ = Minute.toString
+
+instance ConvertOption ToDateTimeFormatOptions "minute" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "second" Second String where
+  convertOption _ _ = Second.toString
+
+instance ConvertOption ToDateTimeFormatOptions "second" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "dayPeriod" DayPeriod String where
+  convertOption _ _ = DayPeriod.toString
+
+instance ConvertOption ToDateTimeFormatOptions "dayPeriod" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "timeZoneName" TimeZoneName String where
+  convertOption _ _ = TimeZoneName.toString
+
+instance ConvertOption ToDateTimeFormatOptions "timeZoneName" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "formatMatcher" FormatMatcher String where
+  convertOption _ _ = FormatMatcher.toString
+
+instance ConvertOption ToDateTimeFormatOptions "formatMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "hour12" Boolean Boolean where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "timeZone" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "hourCycle" HourCycle String where
+  convertOption _ _ = HourCycle.toString
+
+instance ConvertOption ToDateTimeFormatOptions "hourCycle" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "fractionalSecondDigits" Int Int where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "dateStyle" DateStyle String where
+  convertOption _ _ = DateStyle.toString
+
+instance ConvertOption ToDateTimeFormatOptions "dateStyle" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToDateTimeFormatOptions "timeStyle" TimeStyle String where
+  convertOption _ _ = TimeStyle.toString
+
+instance ConvertOption ToDateTimeFormatOptions "timeStyle" String String where
+  convertOption _ _ = identity
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record DateTimeFormatOptions)
+       { | DateTimeFormatOptions }
        (Array String)
 
 supportedLocalesOf
-  :: forall options options'
-   . Union options options' DateTimeFormatOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToDateTimeFormatOptions
+       { | DateTimeFormatOptions }
+       { | provided }
+       { | DateTimeFormatOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Array String
-supportedLocalesOf locales options =
+supportedLocalesOf locales provided =
   Function.Uncurried.runFn2
     _supportedLocalesOf
     (NonEmpty.toArray locales)
-    (Unsafe.Coerce.unsafeCoerce options)
+    options
+  where
+  options :: { | DateTimeFormatOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToDateTimeFormatOptions defaultOptions provided
 
 supportedLocalesOf_
   :: NonEmptyArray Locale
@@ -175,22 +331,12 @@ formatToParts fmt dateTime =
     fmt
     (JSDate.fromDateTime dateTime)
 
-type ResolvedOptions =
-  { locale :: String
-  , calendar :: String
-  , numberingSystem :: String
-  , timeZone :: String
-  , year :: String
-  , month :: String
-  , day :: String
-  }
-
 foreign import _resolvedOptions
   :: EffectFn1
        DateTimeFormat
-       ResolvedOptions
+       Foreign
 
 resolvedOptions
   :: DateTimeFormat
-  -> Effect ResolvedOptions
+  -> Effect Foreign
 resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions

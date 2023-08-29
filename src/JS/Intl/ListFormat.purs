@@ -2,6 +2,7 @@ module JS.Intl.ListFormat
   -- * Types
   ( ListFormat
   , ListFormatOptions
+  , ToListFormatOptions
 
   -- * Constructor
   , new
@@ -15,6 +16,10 @@ module JS.Intl.ListFormat
   , resolvedOptions
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2)
@@ -23,7 +28,12 @@ import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import JS.Intl.Locale (Locale)
-import Prim.Row (class Union)
+import JS.Intl.Options.ListFormatType (ListFormatType)
+import JS.Intl.Options.ListFormatType as ListFormatType
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
+import JS.Intl.Options.LocaleMatcher as LocaleMatcher
+import JS.Intl.Options.Style (Style)
+import JS.Intl.Options.Style as Style
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Language-sensitive list formatting
@@ -35,47 +45,91 @@ type ListFormatOptions =
   , style :: String
   )
 
+defaultOptions :: { | ListFormatOptions }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record ListFormatOptions)
+       { | ListFormatOptions }
        ListFormat
 
+data ToListFormatOptions = ToListFormatOptions
+
 new
-  :: forall options options'
-   . Union options options' ListFormatOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToListFormatOptions
+       { | ListFormatOptions }
+       { | provided }
+       { | ListFormatOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Effect ListFormat
-new locales options =
-  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | ListFormatOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToListFormatOptions defaultOptions provided
+
+instance ConvertOption ToListFormatOptions "localeMatcher" LocaleMatcher String where
+  convertOption _ _ = LocaleMatcher.toString
+
+instance ConvertOption ToListFormatOptions "localeMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToListFormatOptions "type" ListFormatType String where
+  convertOption _ _ = ListFormatType.toString
+
+instance ConvertOption ToListFormatOptions "type" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToListFormatOptions "style" Style String where
+  convertOption _ _ = Style.toString
+
+instance ConvertOption ToListFormatOptions "style" String String where
+  convertOption _ _ = identity
 
 new_
   :: NonEmptyArray Locale
   -> Effect ListFormat
 new_ locales =
-  new locales {}
+  new locales defaultOptions
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record ListFormatOptions)
+       { | ListFormatOptions }
        (Array String)
 
 supportedLocalesOf
-  :: forall options options'
-   . Union options options' ListFormatOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToListFormatOptions
+       { | ListFormatOptions }
+       { | provided }
+       { | ListFormatOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Array String
-supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+supportedLocalesOf locales provided =
+  Function.Uncurried.runFn2
+    _supportedLocalesOf
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | ListFormatOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToListFormatOptions defaultOptions provided
 
 supportedLocalesOf_
   :: NonEmptyArray Locale
   -> Array String
 supportedLocalesOf_ locales =
-  supportedLocalesOf locales {}
+  supportedLocalesOf locales defaultOptions
 
 foreign import _format
   :: Fn2

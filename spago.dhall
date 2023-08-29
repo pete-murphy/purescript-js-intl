@@ -4,6 +4,7 @@
   , "convertable-options"
   , "datetime"
   , "effect"
+  , "foreign"
   , "functions"
   , "js-date"
   , "maybe"

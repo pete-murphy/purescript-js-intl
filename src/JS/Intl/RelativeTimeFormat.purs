@@ -2,6 +2,7 @@ module JS.Intl.RelativeTimeFormat
   -- * Types
   ( RelativeTimeFormat
   , RelativeTimeFormatOptions
+  , ToRelativeTimeFormatOptions
 
   -- * Constructor
   , new
@@ -15,6 +16,10 @@ module JS.Intl.RelativeTimeFormat
   , resolvedOptions
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2, Fn3)
@@ -22,10 +27,15 @@ import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
-import JS.Intl.Internal.Class.StringArg as StringArg
 import JS.Intl.Locale (Locale)
-import JS.Intl.RelativeTimeUnit (RelativeTimeUnit)
-import Prim.Row (class Union)
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
+import JS.Intl.Options.LocaleMatcher as LocaleMatcher
+import JS.Intl.Options.Numeric (Numeric)
+import JS.Intl.Options.Numeric as Numeric
+import JS.Intl.Options.RelativeTimeUnit (RelativeTimeUnit)
+import JS.Intl.Options.RelativeTimeUnit as RelativeTimeUnit
+import JS.Intl.Options.Style (Style)
+import JS.Intl.Options.Style as Style
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Language-sensitive relative time formatting
@@ -37,47 +47,91 @@ type RelativeTimeFormatOptions =
   , style :: String
   )
 
+defaultOptions :: { | RelativeTimeFormatOptions }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record RelativeTimeFormatOptions)
+       { | RelativeTimeFormatOptions }
        RelativeTimeFormat
 
+data ToRelativeTimeFormatOptions = ToRelativeTimeFormatOptions
+
 new
-  :: forall options options'
-   . Union options options' RelativeTimeFormatOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToRelativeTimeFormatOptions
+       { | RelativeTimeFormatOptions }
+       { | provided }
+       { | RelativeTimeFormatOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Effect RelativeTimeFormat
-new locales options =
-  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | RelativeTimeFormatOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToRelativeTimeFormatOptions defaultOptions provided
+
+instance ConvertOption ToRelativeTimeFormatOptions "localeMatcher" LocaleMatcher String where
+  convertOption _ _ = LocaleMatcher.toString
+
+instance ConvertOption ToRelativeTimeFormatOptions "localeMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToRelativeTimeFormatOptions "style" Style String where
+  convertOption _ _ = Style.toString
+
+instance ConvertOption ToRelativeTimeFormatOptions "style" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToRelativeTimeFormatOptions "numeric" Numeric String where
+  convertOption _ _ = Numeric.toString
+
+instance ConvertOption ToRelativeTimeFormatOptions "numeric" String String where
+  convertOption _ _ = identity
 
 new_
   :: NonEmptyArray Locale
   -> Effect RelativeTimeFormat
 new_ locales =
-  new locales {}
+  new locales defaultOptions
 
 foreign import _supportedLocalesOf
   :: Fn2
        (Array Locale)
-       (Record RelativeTimeFormatOptions)
+       { | RelativeTimeFormatOptions }
        (Array String)
 
 supportedLocalesOf
-  :: forall options options'
-   . Union options options' RelativeTimeFormatOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToRelativeTimeFormatOptions
+       { | RelativeTimeFormatOptions }
+       { | provided }
+       { | RelativeTimeFormatOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Array String
-supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+supportedLocalesOf locales provided =
+  Function.Uncurried.runFn2
+    _supportedLocalesOf
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | RelativeTimeFormatOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToRelativeTimeFormatOptions defaultOptions provided
 
 supportedLocalesOf_
   :: NonEmptyArray Locale
   -> Array String
 supportedLocalesOf_ locales =
-  supportedLocalesOf locales {}
+  supportedLocalesOf locales defaultOptions
 
 foreign import _format
   :: Fn3
@@ -94,7 +148,7 @@ format
   -> RelativeTimeUnit
   -> String
 format relativeTimeFormat n relativeTimeUnit =
-  Function.Uncurried.runFn3 _format relativeTimeFormat n (StringArg.from relativeTimeUnit)
+  Function.Uncurried.runFn3 _format relativeTimeFormat n (RelativeTimeUnit.toString relativeTimeUnit)
 
 foreign import _formatToParts
   :: Fn3
@@ -111,7 +165,7 @@ formatToParts
   -> RelativeTimeUnit
   -> Array { type :: String, value :: String }
 formatToParts relativeTimeFormat n relativeTimeUnit =
-  Function.Uncurried.runFn3 _formatToParts relativeTimeFormat n (StringArg.from relativeTimeUnit)
+  Function.Uncurried.runFn3 _formatToParts relativeTimeFormat n (RelativeTimeUnit.toString relativeTimeUnit)
 
 type ResolvedOptions =
   { locale :: String

@@ -26,6 +26,8 @@ import JS.Intl.Collator as Collator
 import JS.Intl.DateTimeFormat as DateTimeFormat
 import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
+import JS.Intl.Options.DateStyle as DateStyle
+import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
 import Partial.Unsafe as Unsafe
 
 ```
@@ -44,7 +46,8 @@ All service constructors take a non-empty array of locales as first argument.
   let locales = NonEmpty.singleton en_US
 ```
 
-Now we can use the `Collator` module to sort a collection of strings by [natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order),
+Now we can use the `Collator` module to sort a collection of strings by
+[natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order),
 
 ```purs
   collator <- Collator.new locales { numeric: true }
@@ -57,10 +60,11 @@ Now we can use the `Collator` module to sort a collection of strings by [natural
 or we can format a range of dates using `DateTimeFormat`,
 
 ```purs
-  dateTimeFormat <- DateTimeFormat.new locales { dateStyle: "medium", timeZone: "UTC" }
+  dateTimeFormat <- DateTimeFormat.new locales { dateStyle: DateStyle.Medium, timeZone: "UTC" }
+
+  maybeDate1 <- JSDate.toDateTime <$> JSDate.parse "07/16/2023"
+  maybeDate2 <- JSDate.toDateTime <$> JSDate.parse "07/20/2023"
   let
-    maybeDate1 = JSDate.toDateTime (JSDate.fromTime 1689500000000.0)
-    maybeDate2 = JSDate.toDateTime (JSDate.fromTime 1689832837416.0)
     formattedDateRange = Unsafe.unsafePartial case maybeDate1, maybeDate2 of
       Just date1, Just date2 -> DateTimeFormat.formatRange dateTimeFormat date1 date2
   Console.logShow formattedDateRange -- "Jul 16 – 20, 2023"
@@ -69,7 +73,7 @@ or we can format a range of dates using `DateTimeFormat`,
 or use `NumberFormat` for formatting currencies for example.
 
 ```purs
-  numberFormat <- NumberFormat.new locales { style: "currency", currency: "USD" }
+  numberFormat <- NumberFormat.new locales { style: NumberFormatStyle.Currency, currency: "USD" }
   let
     formattedNumber = NumberFormat.format numberFormat 123456.789
   Console.logShow formattedNumber -- "$123,456.79"

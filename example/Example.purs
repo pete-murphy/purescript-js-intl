@@ -14,6 +14,8 @@ import JS.Intl.Collator as Collator
 import JS.Intl.DateTimeFormat as DateTimeFormat
 import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
+import JS.Intl.Options.DateStyle as DateStyle
+import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
 import Partial.Unsafe as Unsafe
 
 -- 
@@ -38,17 +40,18 @@ main = do
   --
   -- or we can format a range of dates using `DateTimeFormat`,
   --
-  dateTimeFormat <- DateTimeFormat.new locales { dateStyle: "medium", timeZone: "UTC" }
+  dateTimeFormat <- DateTimeFormat.new locales { dateStyle: DateStyle.Medium, timeZone: "UTC" }
+
+  maybeDate1 <- JSDate.toDateTime <$> JSDate.parse "07/16/2023"
+  maybeDate2 <- JSDate.toDateTime <$> JSDate.parse "07/20/2023"
   let
-    maybeDate1 = JSDate.toDateTime (JSDate.fromTime 1689500000000.0)
-    maybeDate2 = JSDate.toDateTime (JSDate.fromTime 1689832837416.0)
     formattedDateRange = Unsafe.unsafePartial case maybeDate1, maybeDate2 of
       Just date1, Just date2 -> DateTimeFormat.formatRange dateTimeFormat date1 date2
   Console.logShow formattedDateRange -- "Jul 16 – 20, 2023"
   --
   -- or use `NumberFormat` for formatting currencies for example.
   --
-  numberFormat <- NumberFormat.new locales { style: "currency", currency: "USD" }
+  numberFormat <- NumberFormat.new locales { style: NumberFormatStyle.Currency, currency: "USD" }
   let
     formattedNumber = NumberFormat.format numberFormat 123456.789
   Console.logShow formattedNumber -- "$123,456.79"

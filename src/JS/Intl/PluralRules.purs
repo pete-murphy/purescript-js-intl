@@ -2,6 +2,7 @@ module JS.Intl.PluralRules
   -- * Types
   ( PluralRules
   , PluralRulesOptions
+  , ToPluralRulesOptions
 
   -- * Constructor
   , new
@@ -15,6 +16,10 @@ module JS.Intl.PluralRules
   , resolvedOptions
   ) where
 
+import Prelude
+
+import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
+import ConvertableOptions as ConvertableOptions
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2, Fn3)
@@ -23,7 +28,10 @@ import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import JS.Intl.Locale (Locale)
-import Prim.Row (class Union)
+import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
+import JS.Intl.Options.LocaleMatcher as LocaleMatcher
+import JS.Intl.Options.PluralRulesType (PluralRulesType)
+import JS.Intl.Options.PluralRulesType as PluralRulesType
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Plural-sensitive formatting and plural-related language rules
@@ -39,24 +47,67 @@ type PluralRulesOptions =
   , maximumSignificantDigits :: Int
   )
 
+defaultOptions :: { | PluralRulesOptions }
+defaultOptions =
+  Unsafe.Coerce.unsafeCoerce {}
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
-       (Record PluralRulesOptions)
+       { | PluralRulesOptions }
        PluralRules
 
+data ToPluralRulesOptions = ToPluralRulesOptions
+
 new
-  :: forall options options'
-   . Union options options' PluralRulesOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToPluralRulesOptions
+       { | PluralRulesOptions }
+       { | provided }
+       { | PluralRulesOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Effect PluralRules
-new locales options =
-  Effect.Uncurried.runEffectFn2 _new (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+new locales provided =
+  Effect.Uncurried.runEffectFn2
+    _new
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | PluralRulesOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToPluralRulesOptions defaultOptions provided
+
+instance ConvertOption ToPluralRulesOptions "localeMatcher" LocaleMatcher String where
+  convertOption _ _ = LocaleMatcher.toString
+
+instance ConvertOption ToPluralRulesOptions "localeMatcher" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToPluralRulesOptions "type" PluralRulesType String where
+  convertOption _ _ = PluralRulesType.toString
+
+instance ConvertOption ToPluralRulesOptions "type" String String where
+  convertOption _ _ = identity
+
+instance ConvertOption ToPluralRulesOptions "minimumIntegerDigits" Int Int where
+  convertOption _ _ = identity
+
+instance ConvertOption ToPluralRulesOptions "minimumFractionDigits" Int Int where
+  convertOption _ _ = identity
+
+instance ConvertOption ToPluralRulesOptions "maximumFractionDigits" Int Int where
+  convertOption _ _ = identity
+
+instance ConvertOption ToPluralRulesOptions "minimumSignificantDigits" Int Int where
+  convertOption _ _ = identity
+
+instance ConvertOption ToPluralRulesOptions "maximumSignificantDigits" Int Int where
+  convertOption _ _ = identity
 
 new_ :: NonEmptyArray Locale -> Effect PluralRules
 new_ locales =
-  new locales {}
+  new locales defaultOptions
 
 foreign import _supportedLocalesOf
   :: Fn2
@@ -65,19 +116,29 @@ foreign import _supportedLocalesOf
        (Array String)
 
 supportedLocalesOf
-  :: forall options options'
-   . Union options options' PluralRulesOptions
+  :: forall provided
+   . ConvertOptionsWithDefaults
+       ToPluralRulesOptions
+       { | PluralRulesOptions }
+       { | provided }
+       { | PluralRulesOptions }
   => NonEmptyArray Locale
-  -> Record options
+  -> { | provided }
   -> Array String
-supportedLocalesOf locales options =
-  Function.Uncurried.runFn2 _supportedLocalesOf (NonEmpty.toArray locales) (Unsafe.Coerce.unsafeCoerce options)
+supportedLocalesOf locales provided =
+  Function.Uncurried.runFn2
+    _supportedLocalesOf
+    (NonEmpty.toArray locales)
+    options
+  where
+  options :: { | PluralRulesOptions }
+  options = ConvertableOptions.convertOptionsWithDefaults ToPluralRulesOptions defaultOptions provided
 
 supportedLocalesOf_
   :: NonEmptyArray Locale
   -> Array String
 supportedLocalesOf_ locales =
-  supportedLocalesOf locales {}
+  supportedLocalesOf locales defaultOptions
 
 foreign import _select
   :: Fn2
