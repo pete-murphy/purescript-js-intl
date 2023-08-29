@@ -1,8 +1,10 @@
 { name = "js-intl"
 , dependencies =
   [ "arrays"
+  , "convertable-options"
   , "datetime"
   , "effect"
+  , "foreign"
   , "functions"
   , "js-date"
   , "maybe"

@@ -7,9 +7,8 @@ module JS.Intl
 import Data.Function.Uncurried (Fn1, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.Maybe (Maybe(..))
-import JS.Intl.AvailableCanonical (AvailableCanonical(..)) as AvailableCanonical
-import JS.Intl.AvailableCanonical (AvailableCanonical)
-import JS.Intl.Internal.Class.StringArg as StringArg
+import JS.Intl.Options.AvailableCanonical (AvailableCanonical(..), toString) as AvailableCanonical
+import JS.Intl.Options.AvailableCanonical (AvailableCanonical)
 
 foreign import _getCanonicalLocales
   :: Fn3
@@ -39,4 +38,4 @@ foreign import _supportedValuesOf
 -- | ````
 supportedValuesOf :: AvailableCanonical -> Array String
 supportedValuesOf availableCanonical =
-  Function.Uncurried.runFn1 _supportedValuesOf (StringArg.from availableCanonical)
+  Function.Uncurried.runFn1 _supportedValuesOf (AvailableCanonical.toString availableCanonical)
