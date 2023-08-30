@@ -30,6 +30,9 @@ main :: Effect Unit
 main = do
   en_US <- Locale.new_ "en-US"
   --
+  -- This `Locale` is then passed as an argument to the various `Intl` service
+  -- constructors.
+  --
   -- ### Format a date
   -- 
   { date1, date2 } <- Unsafe.unsafePartial do
@@ -96,26 +99,33 @@ main = do
   -- 
   segmenter <- Segmenter.new [ en_US ] { granularity: "word" }
   let
-    words = "Hey! How are ya, Jim?"
-    segments = Segmenter.segment segmenter words
-      # Array.mapMaybe \{ isWordLike, segment } -> case isWordLike of
-          true -> Just segment
-          false -> Nothing
-  Console.logShow (segments :: Array _) -- ["Hey", "How", "are", "ya", "Jim"]
+    sentence = "Hey! How are ya, Jim?"
+    words = Segmenter.segment segmenter sentence
+      # Array.mapMaybe \{ isWordLike, segment } ->
+          if isWordLike then
+            Just segment
+          else Nothing
+  Console.logShow words -- ["Hey", "How", "are", "ya", "Jim"]
   --
-  -- ### Overloaded API
+  -- ### Type safety and overloaded API
   --
-  -- In the examples above we mostly passed `String` values as options to the
-  -- service constructors. For many `String`-typed options there are only a few
-  -- valid `String` values that can be passed in. For example, the `style`
-  -- option for `NumberFormat` only accepts the values `"currency"`,
-  -- `"decimal"`, `"percent"`, and `"unit"`. For ease of discoverability,
-  -- these options are typed as enums in the `JS.Intl.Options` modules, and the API 
-  -- for the service constructors are overloaded:
-  -- * the `style` option will also a `NumberFormatStyle` value
-  -- * `unit` will accept a `DurationComponent`
-  -- * `unitDisplay` will accept a `UnitDisplay`
-  -- * and so on
+  -- In the examples above we mostly passed string values as options to the
+  -- service constructors. Many `String`-typed options only have a few valid
+  -- strings that can be passed in. For example, the `style` option for
+  -- `NumberFormat` only accepts the values `"currency"`, `"decimal"`,
+  -- `"percent"`, and `"unit"`. Passing in any other value will throw a
+  -- `RangeError` from JavaScript.
+  -- ```
+  -- > new Intl.NumberFormat("en-US", { style: "oops" })
+  -- Uncaught:
+  -- RangeError: Value oops out of range for Intl.NumberFormat options property style
+  --     at new NumberFormat (<anonymous>)
+  -- ```
+  -- This library doesn't prevent you from passing invalid strings, and it
+  -- generally won't catch any errors for you. However, for ease of
+  -- discoverability of valid options, there are enums in the `JS.Intl.Options`
+  -- modules for most of the option types, and the service constructors are
+  -- overloaded to accept these values as well.
   secondsNumberFormat <-
     NumberFormat.new [ en_US ]
       { style: NumberFormatStyle.Unit
@@ -127,4 +137,5 @@ main = do
   let
     formattedSeconds = NumberFormat.format secondsNumberFormat 123456.789
   Console.logShow formattedSeconds -- "123.5K sec"  
-
+-- See the `ConvertOptions` type class instances in each of the service
+-- constructor modules to see what options are valid.
