@@ -17,5 +17,5 @@
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 , license = "MIT"
-, repository = "https://github.com/ptrfrncsmrph/purescript-js-intl.git"
+, repository = "https://github.com/pete-murphy/purescript-js-intl.git"
 }
