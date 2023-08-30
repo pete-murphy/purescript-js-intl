@@ -105,7 +105,7 @@ main = do
           if isWordLike then
             Just segment
           else Nothing
-  Console.logShow words -- ["Hey", "How", "are", "ya", "Jim"]
+  Console.logShow words -- ["Hey","How","are","ya","Jim"]
   --
   -- ### Type safety and overloaded API
   --
@@ -137,5 +137,5 @@ main = do
   let
     formattedSeconds = NumberFormat.format secondsNumberFormat 123456.789
   Console.logShow formattedSeconds -- "123.5K sec"  
--- See the `ConvertOptions` type class instances in each of the service
+-- See the `ConvertOption` type class instances in each of the service
 -- constructor modules to see what options are valid.
