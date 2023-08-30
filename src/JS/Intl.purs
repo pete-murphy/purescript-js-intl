@@ -1,14 +1,13 @@
 module JS.Intl
-  ( module AvailableCanonical
-  , getCanonicalLocales
+  ( getCanonicalLocales
   , supportedValuesOf
   ) where
 
 import Data.Function.Uncurried (Fn1, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.Maybe (Maybe(..))
-import JS.Intl.Options.AvailableCanonical (AvailableCanonical(..), toString) as AvailableCanonical
 import JS.Intl.Options.AvailableCanonical (AvailableCanonical)
+import JS.Intl.Options.AvailableCanonical as AvailableCanonical
 
 foreign import _getCanonicalLocales
   :: Fn3

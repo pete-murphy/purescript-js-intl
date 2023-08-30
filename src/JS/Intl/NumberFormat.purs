@@ -22,10 +22,9 @@ import Prelude
 
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
 import ConvertableOptions as ConvertableOptions
-import Data.Array.NonEmpty (NonEmptyArray)
-import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
+import Data.Interval (DurationComponent(..))
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
@@ -111,13 +110,13 @@ new
        { | NumberFormatOptions }
        { | provided }
        { | NumberFormatOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Effect NumberFormat
 new locales provided =
   Effect.Uncurried.runEffectFn2
     _new
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | NumberFormatOptions }
@@ -171,7 +170,17 @@ instance ConvertOption ToNumberFormatOptions "signDisplay" SignDisplay String wh
 instance ConvertOption ToNumberFormatOptions "signDisplay" String String where
   convertOption _ _ = identity
 
-instance ConvertOption ToNumberFormatOptions "unit" String String where
+instance ConvertOption ToNumberFormatOptions "unit" DurationComponent String where
+  convertOption _ _ = case _ of
+    Second -> "second"
+    Minute -> "minute"
+    Hour -> "hour"
+    Day -> "day"
+    Week -> "week"
+    Month -> "month"
+    Year -> "year"
+
+else instance ConvertOption ToNumberFormatOptions "unit" String String where
   convertOption _ _ = identity
 
 instance ConvertOption ToNumberFormatOptions "unitDisplay" UnitDisplay String where
@@ -232,7 +241,7 @@ instance ConvertOption ToNumberFormatOptions "maximumSignificantDigits" Int Int 
   convertOption _ _ = identity
 
 new_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Effect NumberFormat
 new_ locales =
   new locales defaultOptions
@@ -250,20 +259,20 @@ supportedLocalesOf
        { | NumberFormatOptions }
        { | provided }
        { | NumberFormatOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Array String
 supportedLocalesOf locales provided =
   Function.Uncurried.runFn2
     _supportedLocalesOf
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | NumberFormatOptions }
   options = ConvertableOptions.convertOptionsWithDefaults ToNumberFormatOptions defaultOptions provided
 
 supportedLocalesOf_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales defaultOptions

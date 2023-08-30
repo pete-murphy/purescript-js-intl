@@ -19,8 +19,6 @@ import Prelude
 
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
 import ConvertableOptions as ConvertableOptions
-import Data.Array.NonEmpty (NonEmptyArray)
-import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2, Fn4)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.Maybe (Maybe(..))
@@ -65,13 +63,13 @@ new
        { | SegmenterOptions }
        { | provided }
        { | SegmenterOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Effect Segmenter
 new locales provided =
   Effect.Uncurried.runEffectFn2
     _new
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | SegmenterOptions }
@@ -89,7 +87,7 @@ instance ConvertOption ToSegmenterOptions "granularity" Granularity String where
 instance ConvertOption ToSegmenterOptions "granularity" String String where
   convertOption _ _ = identity
 
-new_ :: NonEmptyArray Locale -> Effect Segmenter
+new_ :: Array Locale -> Effect Segmenter
 new_ locales =
   new locales defaultOptions
 
@@ -106,20 +104,20 @@ supportedLocalesOf
        { | SegmenterOptions }
        { | provided }
        { | SegmenterOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Array String
 supportedLocalesOf locales provided =
   Function.Uncurried.runFn2
     _supportedLocalesOf
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | SegmenterOptions }
   options = ConvertableOptions.convertOptionsWithDefaults ToSegmenterOptions defaultOptions provided
 
 supportedLocalesOf_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales defaultOptions

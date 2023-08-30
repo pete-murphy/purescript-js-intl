@@ -19,8 +19,6 @@ import Prelude hiding (compare)
 
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
 import ConvertableOptions as ConvertableOptions
-import Data.Array.NonEmpty (NonEmptyArray)
-import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
@@ -70,7 +68,7 @@ foreign import _new
        Collator
 
 new_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Effect Collator
 new_ locales =
   new locales defaultOptions
@@ -84,13 +82,13 @@ new
        { | CollatorOptions }
        { | provided }
        { | CollatorOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Effect Collator
 new locales providedOptions =
   Effect.Uncurried.runEffectFn2
     _new
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | CollatorOptions }
@@ -145,20 +143,20 @@ supportedLocalesOf
        { | CollatorOptions }
        { | provided }
        { | CollatorOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Array String
 supportedLocalesOf locales providedOptions =
   Function.Uncurried.runFn2
     _supportedLocalesOf
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | CollatorOptions }
   options = ConvertableOptions.convertOptionsWithDefaults ToCollatorOptions defaultOptions providedOptions
 
 supportedLocalesOf_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}

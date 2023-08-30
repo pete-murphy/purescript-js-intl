@@ -22,8 +22,6 @@ import Prelude
 
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
 import ConvertableOptions as ConvertableOptions
-import Data.Array.NonEmpty (NonEmptyArray)
-import Data.Array.NonEmpty as NonEmpty
 import Data.DateTime (DateTime)
 import Data.Function.Uncurried (Fn2, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
@@ -101,7 +99,7 @@ foreign import _new
        DateTimeFormat
 
 new_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Effect DateTimeFormat
 new_ locales =
   new locales defaultOptions
@@ -115,13 +113,13 @@ new
        { | DateTimeFormatOptions }
        { | provided }
        { | DateTimeFormatOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Effect DateTimeFormat
 new locales provided =
   Effect.Uncurried.runEffectFn2
     _new
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | DateTimeFormatOptions }
@@ -239,20 +237,20 @@ supportedLocalesOf
        { | DateTimeFormatOptions }
        { | provided }
        { | DateTimeFormatOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Array String
 supportedLocalesOf locales provided =
   Function.Uncurried.runFn2
     _supportedLocalesOf
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | DateTimeFormatOptions }
   options = ConvertableOptions.convertOptionsWithDefaults ToDateTimeFormatOptions defaultOptions provided
 
 supportedLocalesOf_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}

@@ -20,8 +20,6 @@ import Prelude
 
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
 import ConvertableOptions as ConvertableOptions
-import Data.Array.NonEmpty (NonEmptyArray)
-import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
@@ -64,13 +62,13 @@ new
        { | ListFormatOptions }
        { | provided }
        { | ListFormatOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Effect ListFormat
 new locales provided =
   Effect.Uncurried.runEffectFn2
     _new
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | ListFormatOptions }
@@ -95,7 +93,7 @@ instance ConvertOption ToListFormatOptions "style" String String where
   convertOption _ _ = identity
 
 new_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Effect ListFormat
 new_ locales =
   new locales defaultOptions
@@ -113,20 +111,20 @@ supportedLocalesOf
        { | ListFormatOptions }
        { | provided }
        { | ListFormatOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Array String
 supportedLocalesOf locales provided =
   Function.Uncurried.runFn2
     _supportedLocalesOf
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | ListFormatOptions }
   options = ConvertableOptions.convertOptionsWithDefaults ToListFormatOptions defaultOptions provided
 
 supportedLocalesOf_
-  :: NonEmptyArray Locale
+  :: Array Locale
   -> Array String
 supportedLocalesOf_ locales =
   supportedLocalesOf locales defaultOptions

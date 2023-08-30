@@ -17,8 +17,6 @@ import Prelude
 
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults, class Defaults)
 import ConvertableOptions as ConvertableOptions
-import Data.Array.NonEmpty (NonEmptyArray)
-import Data.Array.NonEmpty as NonEmpty
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.Maybe (Maybe)
@@ -72,13 +70,13 @@ new
        { | DisplayNamesOptions'Optional }
        { | provided }
        { | DisplayNamesOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Effect DisplayNames
 new locales provided =
   Effect.Uncurried.runEffectFn2
     _new
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | DisplayNamesOptions }
@@ -128,13 +126,13 @@ supportedLocalesOf
        { | DisplayNamesOptions'Optional }
        { | provided }
        { | DisplayNamesOptions }
-  => NonEmptyArray Locale
+  => Array Locale
   -> { | provided }
   -> Array String
 supportedLocalesOf locales provided =
   Function.Uncurried.runFn2
     _supportedLocalesOf
-    (NonEmpty.toArray locales)
+    locales
     options
   where
   options :: { | DisplayNamesOptions }
