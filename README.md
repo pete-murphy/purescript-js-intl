@@ -2,10 +2,25 @@
 
 # `js-intl`
 
-Low-level bindings for the ECMA 402 specification for the `Intl` object https://tc39.es/ecma402/#intl-object (MDN Documentation: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl)
+[![Latest release](http://img.shields.io/github/release/pete-murphy/purescript-js-intl.svg)](https://github.com/pete-murphy/purescript-js-intl/releases)
+[![Build status](https://github.com/pete-murphy/purescript-js-intl/workflows/CI/badge.svg?branch=main)](https://github.com/pete-murphy/purescript-js-intl/actions?query=workflow%3ACI+branch%3Amain)
+[![Pursuit](https://pursuit.purescript.org/packages/purescript-js-intl/badge)](https://pursuit.purescript.org/packages/purescript-js-intl)
+
+Type definitions and low-level bindings for the [ECMA 402 specification for the `Intl` object](https://tc39.es/ecma402/#intl-object).
 
 > **Warning**
-> Implementations of the specification vary across platforms. For example `Intl.supportedValuesOf` will return different values when run in Node compared to Chrome or Firefox, etc. Some areas of the API only have partial support—like `Segmenter` or `NumberFormat.formatRange` at time of writing.
+> Implementations of the specification vary across platforms. For example `Intl.supportedValuesOf` will return different values when run in Node compared to Chrome or Firefox, etc. Some areas of the API may only have partial support—check the [MDN browser compatibility tables](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#browser_compatibility).
+
+## Installation
+
+```
+spago install js-intl
+```
+
+## Documentation
+
+Module documentation is [published on Pursuit](http://pursuit.purescript.org/packages/purescript-js-intl).
+See also, MDN Documentation on `Intl`: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl.
 
 ## How to use this library
 
@@ -18,7 +33,7 @@ module Example where
 import Prelude
 
 import Data.Array as Array
-import Data.Interval (DurationComponent(..))
+import Data.Interval as Interval
 import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
@@ -158,17 +173,22 @@ overloaded to accept these values as well.
   secondsNumberFormat <-
     NumberFormat.new [ en_US ]
       { style: NumberFormatStyle.Unit
-      , unit: Second
+      , unit: Interval.Second
       , unitDisplay: UnitDisplay.Short
       , notation: Notation.Compact
       , maximumFractionDigits: 1
       }
   let
     formattedSeconds = NumberFormat.format secondsNumberFormat 123456.789
-  Console.logShow formattedSeconds -- "123.5K sec"  
+  Console.logShow formattedSeconds -- "123.5K sec"
 ```
 See the `ConvertOption` type class instances in each of the service
-constructor modules to see what options are valid.
+constructor modules to see what options are available as typed enums. Note
+that even when using the typed enums there are still some invalid
+combinations of options that will throw an error, like specifying `timeStyle`
+_and_ `fractionalSecondDigits` in the `DateTimeFormat` options. Reference
+[the official specification](https://tc39.es/ecma402) for details on valid
+combinations.
 
 
 More examples are in the `Test.Main` module.

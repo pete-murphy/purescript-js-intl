@@ -5,7 +5,7 @@ module Example where
 import Prelude
 
 import Data.Array as Array
-import Data.Interval (DurationComponent(..))
+import Data.Interval as Interval
 import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
@@ -129,13 +129,18 @@ main = do
   secondsNumberFormat <-
     NumberFormat.new [ en_US ]
       { style: NumberFormatStyle.Unit
-      , unit: Second
+      , unit: Interval.Second
       , unitDisplay: UnitDisplay.Short
       , notation: Notation.Compact
       , maximumFractionDigits: 1
       }
   let
     formattedSeconds = NumberFormat.format secondsNumberFormat 123456.789
-  Console.logShow formattedSeconds -- "123.5K sec"  
+  Console.logShow formattedSeconds -- "123.5K sec"
 -- See the `ConvertOption` type class instances in each of the service
--- constructor modules to see what options are valid.
+-- constructor modules to see what options are available as typed enums. Note
+-- that even when using the typed enums there are still some invalid
+-- combinations of options that will throw an error, like specifying `timeStyle`
+-- _and_ `fractionalSecondDigits` in the `DateTimeFormat` options. Reference
+-- [the official specification](https://tc39.es/ecma402) for details on valid
+-- combinations.
