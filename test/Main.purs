@@ -6,6 +6,7 @@ import Data.Array as Array
 import Data.DateTime (DateTime(..))
 import Data.DateTime as DateTime
 import Data.Enum as Enum
+import Data.Foldable as Foldable
 import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
@@ -20,7 +21,10 @@ import JS.Intl.ListFormat as ListFormat
 import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
 import JS.Intl.Options.AvailableCanonical as AvailableCanonical
+import JS.Intl.Options.CaseFirst as CaseFirst
+import JS.Intl.Options.Collation as Collation
 import JS.Intl.Options.DateStyle as DateStyle
+import JS.Intl.Options.HourCycle as HourCycle
 import JS.Intl.Options.LocaleMatcher (LocaleMatcher(..))
 import JS.Intl.Options.RelativeTimeUnit (RelativeTimeUnit(..))
 import JS.Intl.Options.Sensitivity (Sensitivity(..))
@@ -329,9 +333,9 @@ test_DateTimeFormat = do
       }
     Test.assertEqual
       { actual: DateTimeFormat.formatRange format date1 date2
-          # String.replaceAll (Pattern "\x2009") (Replacement " ")
+          # replaceThinSpaces
       , expected: "Friday, December 21, 2012 at 12:00:00 AM Coordinated Universal Time – Friday, August 23, 2013 at 12:00:00 AM Coordinated Universal Time"
-          # String.replaceAll (Pattern "\x2009") (Replacement " ")
+          # replaceThinSpaces
       }
 
     Console.log "DateTimeFormat.formatRangeToParts"
@@ -508,11 +512,145 @@ test_ListFormat = do
 test_Locale :: Effect Unit
 test_Locale = do
   Console.log "Locale.baseName"
-  locale <- Locale.new_ "en-US"
-  Test.assertEqual
-    { actual: Locale.baseName locale
-    , expected: "en-US"
-    }
+  do
+    locale <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.baseName locale
+      , expected: "en-US"
+      }
+
+  Console.log "Locale.calendar"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.calendar en_US
+      , expected: Nothing
+      }
+    fr_FR_u_ca_buddhist <- Locale.new_ "fr-FR-u-ca-buddhist"
+    Test.assertEqual
+      { actual: Locale.calendar fr_FR_u_ca_buddhist
+      , expected: Just "buddhist"
+      }
+    fr_FR' <- Locale.new "fr-FR" { calendar: "buddhist" }
+    Test.assertEqual
+      { actual: Locale.calendar fr_FR'
+      , expected: Just "buddhist"
+      }
+
+  Console.log "Locale.caseFirst"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqualWith (show <<< map CaseFirst.toString)
+      { actual: Locale.caseFirst en_US
+      , expected: Nothing
+      }
+  Foldable.for_ [ CaseFirst.False, CaseFirst.Lower, CaseFirst.Upper ] \caseFirst -> do
+    en_US <-
+      Locale.new "en-US" { caseFirst }
+    Test.assertEqualWith (show <<< map CaseFirst.toString)
+      { actual: Locale.caseFirst en_US
+      , expected: Just caseFirst
+      }
+
+  Console.log "Locale.caseFirst"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqualWith (show <<< map Collation.toString)
+      { actual: Locale.collation en_US
+      , expected: Nothing
+      }
+  Foldable.for_ [ Collation.Compat, Collation.Default, Collation.Dict, Collation.Emoji, Collation.Phonebk ] \collation -> do
+    en_US <-
+      Locale.new "en-US" { collation }
+    Test.assertEqualWith (show <<< map Collation.toString)
+      { actual: Locale.collation en_US
+      , expected: Just collation
+      }
+
+  Console.log "Locale.hourCycle"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqualWith (show <<< map HourCycle.toString)
+      { actual: Locale.hourCycle en_US
+      , expected: Nothing
+      }
+  Foldable.for_ [ HourCycle.H11, HourCycle.H12, HourCycle.H23, HourCycle.H24 ] \hourCycle -> do
+    en_US <-
+      Locale.new "en-US" { hourCycle }
+    Test.assertEqualWith (show <<< map HourCycle.toString)
+      { actual: Locale.hourCycle en_US
+      , expected: Just hourCycle
+      }
+
+  Console.log "Locale.numeric"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.numeric en_US
+      , expected: false
+      }
+    en_US' <- Locale.new "en-US" { numeric: true }
+    Test.assertEqual
+      { actual: Locale.numeric en_US'
+      , expected: true
+      }
+
+  Console.log "Locale.numberingSystem"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.numberingSystem en_US
+      , expected: Nothing
+      }
+    en_US' <- Locale.new "en-US" { numberingSystem: "latn" }
+    Test.assertEqual
+      { actual: Locale.numberingSystem en_US'
+      , expected: Just "latn"
+      }
+
+  Console.log "Locale.language"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.language en_US
+      , expected: "en"
+      }
+    en_US' <- Locale.new "en-US" { language: "fr" }
+    Test.assertEqual
+      { actual: Locale.language en_US'
+      , expected: "fr"
+      }
+
+  Console.log "Locale.script"
+  do
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.script en_US
+      , expected: Nothing
+      }
+    en_US' <- Locale.new "en-US" { script: "Latn" }
+    Test.assertEqual
+      { actual: Locale.script en_US'
+      , expected: Just "Latn"
+      }
+
+  Console.log "Locale.region"
+  do
+    en <- Locale.new_ "en"
+    Test.assertEqual
+      { actual: Locale.region en
+      , expected: Nothing
+      }
+    en_US <- Locale.new_ "en-US"
+    Test.assertEqual
+      { actual: Locale.region en_US
+      , expected: Just "US"
+      }
+    en_US' <- Locale.new "en-US" { region: "FR" }
+    Test.assertEqual
+      { actual: Locale.region en_US'
+      , expected: Just "FR"
+      }
 
 test_NumberFormat :: Effect Unit
 test_NumberFormat = do
