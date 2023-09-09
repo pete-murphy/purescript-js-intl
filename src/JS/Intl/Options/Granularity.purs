@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.Granularity
   ( Granularity(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data Granularity = Grapheme | Word | Sentence
 
@@ -17,3 +20,10 @@ toString = case _ of
   Grapheme -> "grapheme"
   Word -> "word"
   Sentence -> "sentence"
+
+fromString :: String -> Maybe Granularity
+fromString = case _ of
+  "grapheme" -> Just Grapheme
+  "word" -> Just Word
+  "sentence" -> Just Sentence
+  _ -> Nothing

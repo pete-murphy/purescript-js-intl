@@ -279,8 +279,12 @@ makeModule moduleName option = Partial.Unsafe.unsafePartial do
   Codegen.Monad.codegenModule moduleName do
     Codegen.Monad.exportTypeAll option.name
     Codegen.Monad.exportValue "toString"
+    Codegen.Monad.exportValue "fromString"
 
     Codegen.Monad.importOpen "Prelude"
+    maybe <- Codegen.Monad.importFrom "Data.Maybe" (Codegen.Monad.importType "Maybe")
+    just <- Codegen.Monad.importFrom "Data.Maybe" (Codegen.Monad.importCtor "Maybe" "Just")
+    nothing <- Codegen.Monad.importFrom "Data.Maybe" (Codegen.Monad.importCtor "Maybe" "Nothing")
 
     Writer.tell
       [ Codegen.declData option.name []
@@ -298,6 +302,17 @@ makeModule moduleName option = Partial.Unsafe.unsafePartial do
                 Codegen.caseBranch [ Codegen.binderCtor name [] ] do
                   Codegen.exprString toString
             )
+
+      , Codegen.declSignature "fromString" do
+          Codegen.typeForall [] do
+            Codegen.typeArrow [ Codegen.typeCtor "String" ] (Codegen.typeApp (Codegen.typeCtor maybe) [ Codegen.typeCtor option.name ])
+
+      , Codegen.declValue "fromString" [] do
+          Codegen.exprCase [ Codegen.exprSection ] do
+            ( option.constructors <#> \{ name, toString } ->
+                Codegen.caseBranch [ Codegen.binderString toString ] do
+                  Codegen.exprApp (Codegen.exprCtor just) [ Codegen.exprCtor name ]
+            ) <> [ Codegen.caseBranch [ Codegen.binderWildcard ] (Codegen.exprCtor nothing) ]
       ]
 
 main :: Effect Unit

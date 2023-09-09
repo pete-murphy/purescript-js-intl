@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.RoundingMode
   ( RoundingMode(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data RoundingMode
   = Ceil
@@ -32,3 +35,16 @@ toString = case _ of
   HalfExpand -> "halfExpand"
   HalfTrunc -> "halfTrunc"
   HalfEven -> "halfEven"
+
+fromString :: String -> Maybe RoundingMode
+fromString = case _ of
+  "ceil" -> Just Ceil
+  "floor" -> Just Floor
+  "expand" -> Just Expand
+  "trunc" -> Just Trunc
+  "halfCeil" -> Just HalfCeil
+  "halfFloor" -> Just HalfFloor
+  "halfExpand" -> Just HalfExpand
+  "halfTrunc" -> Just HalfTrunc
+  "halfEven" -> Just HalfEven
+  _ -> Nothing

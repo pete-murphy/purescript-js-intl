@@ -9,6 +9,7 @@
   , "js-date"
   , "maybe"
   , "nullable"
+  , "partial"
   , "prelude"
   , "tuples"
   , "unfoldable"

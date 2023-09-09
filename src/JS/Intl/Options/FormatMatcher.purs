@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.FormatMatcher
   ( FormatMatcher(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data FormatMatcher = Basic | BestFit
 
@@ -16,3 +19,9 @@ toString :: FormatMatcher -> String
 toString = case _ of
   Basic -> "basic"
   BestFit -> "best fit"
+
+fromString :: String -> Maybe FormatMatcher
+fromString = case _ of
+  "basic" -> Just Basic
+  "best fit" -> Just BestFit
+  _ -> Nothing

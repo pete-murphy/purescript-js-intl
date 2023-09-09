@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.UnitDisplay
   ( UnitDisplay(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data UnitDisplay = Narrow | Short | Long
 
@@ -17,3 +20,10 @@ toString = case _ of
   Narrow -> "narrow"
   Short -> "short"
   Long -> "long"
+
+fromString :: String -> Maybe UnitDisplay
+fromString = case _ of
+  "narrow" -> Just Narrow
+  "short" -> Just Short
+  "long" -> Just Long
+  _ -> Nothing

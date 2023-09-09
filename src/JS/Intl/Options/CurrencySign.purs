@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.CurrencySign
   ( CurrencySign(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data CurrencySign = Standard | Accounting
 
@@ -16,3 +19,9 @@ toString :: CurrencySign -> String
 toString = case _ of
   Standard -> "standard"
   Accounting -> "accounting"
+
+fromString :: String -> Maybe CurrencySign
+fromString = case _ of
+  "standard" -> Just Standard
+  "accounting" -> Just Accounting
+  _ -> Nothing

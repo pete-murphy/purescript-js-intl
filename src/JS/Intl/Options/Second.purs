@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.Second
   ( Second(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data Second = Numeric | TwoDigit
 
@@ -16,3 +19,9 @@ toString :: Second -> String
 toString = case _ of
   Numeric -> "numeric"
   TwoDigit -> "2-digit"
+
+fromString :: String -> Maybe Second
+fromString = case _ of
+  "numeric" -> Just Numeric
+  "2-digit" -> Just TwoDigit
+  _ -> Nothing

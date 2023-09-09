@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.CaseFirst
   ( CaseFirst(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data CaseFirst = Upper | Lower | False
 
@@ -17,3 +20,10 @@ toString = case _ of
   Upper -> "upper"
   Lower -> "lower"
   False -> "false"
+
+fromString :: String -> Maybe CaseFirst
+fromString = case _ of
+  "upper" -> Just Upper
+  "lower" -> Just Lower
+  "false" -> Just False
+  _ -> Nothing

@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.TimeZoneName
   ( TimeZoneName(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data TimeZoneName
   = Short
@@ -26,3 +29,13 @@ toString = case _ of
   LongOffset -> "longOffset"
   ShortGeneric -> "shortGeneric"
   LongGeneric -> "longGeneric"
+
+fromString :: String -> Maybe TimeZoneName
+fromString = case _ of
+  "short" -> Just Short
+  "long" -> Just Long
+  "shortOffset" -> Just ShortOffset
+  "longOffset" -> Just LongOffset
+  "shortGeneric" -> Just ShortGeneric
+  "longGeneric" -> Just LongGeneric
+  _ -> Nothing

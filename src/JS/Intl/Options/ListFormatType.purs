@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.ListFormatType
   ( ListFormatType(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data ListFormatType
   = Conjunction
@@ -20,3 +23,10 @@ toString = case _ of
   Conjunction -> "conjunction"
   Disjunction -> "disjunction"
   Unit -> "unit"
+
+fromString :: String -> Maybe ListFormatType
+fromString = case _ of
+  "conjunction" -> Just Conjunction
+  "disjunction" -> Just Disjunction
+  "unit" -> Just Unit
+  _ -> Nothing

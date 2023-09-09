@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.Collation
   ( Collation(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data Collation
   = Default
@@ -38,3 +41,19 @@ toString = case _ of
   Stroke -> "stroke"
   Trad -> "trad"
   Zhuyin -> "zhuyin"
+
+fromString :: String -> Maybe Collation
+fromString = case _ of
+  "default" -> Just Default
+  "compat" -> Just Compat
+  "dict" -> Just Dict
+  "emoji" -> Just Emoji
+  "eor" -> Just Eor
+  "phonebk" -> Just Phonebk
+  "phonetic" -> Just Phonetic
+  "pinyin" -> Just Pinyin
+  "searchji" -> Just Searchji
+  "stroke" -> Just Stroke
+  "trad" -> Just Trad
+  "zhuyin" -> Just Zhuyin
+  _ -> Nothing

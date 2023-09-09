@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.Notation
   ( Notation(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data Notation
   = Standard
@@ -22,3 +25,11 @@ toString = case _ of
   Scientific -> "scientific"
   Engineering -> "engineering"
   Compact -> "compact"
+
+fromString :: String -> Maybe Notation
+fromString = case _ of
+  "standard" -> Just Standard
+  "scientific" -> Just Scientific
+  "engineering" -> Just Engineering
+  "compact" -> Just Compact
+  _ -> Nothing

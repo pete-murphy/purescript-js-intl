@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.Fallback
   ( Fallback(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data Fallback = Code | None
 
@@ -16,3 +19,9 @@ toString :: Fallback -> String
 toString = case _ of
   Code -> "code"
   None -> "none"
+
+fromString :: String -> Maybe Fallback
+fromString = case _ of
+  "code" -> Just Code
+  "none" -> Just None
+  _ -> Nothing

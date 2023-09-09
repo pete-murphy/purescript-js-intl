@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.RoundingPriority
   ( RoundingPriority(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data RoundingPriority
   = Auto
@@ -20,3 +23,10 @@ toString = case _ of
   Auto -> "auto"
   MorePrecision -> "morePrecision"
   LessPrecision -> "lessPrecision"
+
+fromString :: String -> Maybe RoundingPriority
+fromString = case _ of
+  "auto" -> Just Auto
+  "morePrecision" -> Just MorePrecision
+  "lessPrecision" -> Just LessPrecision
+  _ -> Nothing

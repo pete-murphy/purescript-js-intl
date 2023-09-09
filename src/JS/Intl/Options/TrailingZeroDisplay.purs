@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.TrailingZeroDisplay
   ( TrailingZeroDisplay(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data TrailingZeroDisplay = Auto | StripIfInteger
 
@@ -16,3 +19,9 @@ toString :: TrailingZeroDisplay -> String
 toString = case _ of
   Auto -> "auto"
   StripIfInteger -> "stripIfInteger"
+
+fromString :: String -> Maybe TrailingZeroDisplay
+fromString = case _ of
+  "auto" -> Just Auto
+  "stripIfInteger" -> Just StripIfInteger
+  _ -> Nothing

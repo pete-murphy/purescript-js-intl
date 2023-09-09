@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.NumberFormatStyle
   ( NumberFormatStyle(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data NumberFormatStyle
   = Decimal
@@ -22,3 +25,11 @@ toString = case _ of
   Currency -> "currency"
   Percent -> "percent"
   Unit -> "unit"
+
+fromString :: String -> Maybe NumberFormatStyle
+fromString = case _ of
+  "decimal" -> Just Decimal
+  "currency" -> Just Currency
+  "percent" -> Just Percent
+  "unit" -> Just Unit
+  _ -> Nothing

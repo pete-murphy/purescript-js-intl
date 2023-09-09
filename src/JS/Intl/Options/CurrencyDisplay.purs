@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.CurrencyDisplay
   ( CurrencyDisplay(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data CurrencyDisplay
   = Code
@@ -22,3 +25,11 @@ toString = case _ of
   Symbol -> "symbol"
   NarrowSymbol -> "narrowSymbol"
   Name -> "name"
+
+fromString :: String -> Maybe CurrencyDisplay
+fromString = case _ of
+  "code" -> Just Code
+  "symbol" -> Just Symbol
+  "narrowSymbol" -> Just NarrowSymbol
+  "name" -> Just Name
+  _ -> Nothing

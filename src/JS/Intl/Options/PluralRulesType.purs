@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.PluralRulesType
   ( PluralRulesType(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data PluralRulesType = Cardinal | Ordinal
 
@@ -16,3 +19,9 @@ toString :: PluralRulesType -> String
 toString = case _ of
   Cardinal -> "cardinal"
   Ordinal -> "ordinal"
+
+fromString :: String -> Maybe PluralRulesType
+fromString = case _ of
+  "cardinal" -> Just Cardinal
+  "ordinal" -> Just Ordinal
+  _ -> Nothing

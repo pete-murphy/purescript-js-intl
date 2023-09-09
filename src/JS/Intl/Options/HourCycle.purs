@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.HourCycle
   ( HourCycle(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data HourCycle = H11 | H12 | H23 | H24
 
@@ -18,3 +21,11 @@ toString = case _ of
   H12 -> "h12"
   H23 -> "h23"
   H24 -> "h24"
+
+fromString :: String -> Maybe HourCycle
+fromString = case _ of
+  "h11" -> Just H11
+  "h12" -> Just H12
+  "h23" -> Just H23
+  "h24" -> Just H24
+  _ -> Nothing

@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.Sensitivity
   ( Sensitivity(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data Sensitivity = Base | Accent | Case | Variant
 
@@ -18,3 +21,11 @@ toString = case _ of
   Accent -> "accent"
   Case -> "case"
   Variant -> "variant"
+
+fromString :: String -> Maybe Sensitivity
+fromString = case _ of
+  "base" -> Just Base
+  "accent" -> Just Accent
+  "case" -> Just Case
+  "variant" -> Just Variant
+  _ -> Nothing

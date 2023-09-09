@@ -3,10 +3,13 @@
 
 module JS.Intl.Options.DateStyle
   ( DateStyle(..)
+  , fromString
   , toString
   ) where
 
 import Prelude
+
+import Data.Maybe (Maybe(..))
 
 data DateStyle = Full | Long | Medium | Short
 
@@ -18,3 +21,11 @@ toString = case _ of
   Long -> "long"
   Medium -> "medium"
   Short -> "short"
+
+fromString :: String -> Maybe DateStyle
+fromString = case _ of
+  "full" -> Just Full
+  "long" -> Just Long
+  "medium" -> Just Medium
+  "short" -> Just Short
+  _ -> Nothing
