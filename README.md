@@ -8,9 +8,6 @@
 
 Type definitions and low-level bindings for the [ECMA 402 specification for the `Intl` object](https://tc39.es/ecma402/#intl-object).
 
-> **Warning**
-> Implementations of the specification vary across platforms. For example `Intl.supportedValuesOf` will return different values when run in Node compared to Chrome or Firefox, etc. Some areas of the API may only have partial support—check the [MDN browser compatibility tables](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#browser_compatibility).
-
 ## Installation
 
 ```
@@ -147,7 +144,7 @@ constructors.
           if isWordLike then
             Just segment
           else Nothing
-  Console.logShow words -- ["Hey","How","are","ya","Jim"]
+  Console.logShow words -- [ "Hey", "How", "are", "ya", "Jim" ]
 ```
 
 ### Type safety and overloaded API
@@ -192,4 +189,7 @@ combinations.
 
 
 More examples are in the `Test.Main` module.
+
+> **Note**
+> Implementations of the specification vary across platforms. For example `Intl.supportedValuesOf` will return different values when run in Node compared to Chrome or Firefox, etc. Some areas of the API may only have partial support—check the [MDN browser compatibility tables](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#browser_compatibility).
 

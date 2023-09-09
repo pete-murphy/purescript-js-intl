@@ -105,7 +105,7 @@ main = do
           if isWordLike then
             Just segment
           else Nothing
-  Console.logShow words -- ["Hey","How","are","ya","Jim"]
+  Console.logShow words -- [ "Hey", "How", "are", "ya", "Jim" ]
   --
   -- ### Type safety and overloaded API
   --
