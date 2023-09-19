@@ -1,6 +1,6 @@
 <!-- This file was generated using `script/generate-readme.sh` -->
 
-# `js-intl`
+# js-intl
 
 [![Latest release](http://img.shields.io/github/release/pete-murphy/purescript-js-intl.svg)](https://github.com/pete-murphy/purescript-js-intl/releases)
 [![Build status](https://github.com/pete-murphy/purescript-js-intl/workflows/CI/badge.svg?branch=main)](https://github.com/pete-murphy/purescript-js-intl/actions?query=workflow%3ACI+branch%3Amain)
@@ -36,6 +36,7 @@ import Data.Array as Array
 import Data.Interval as Interval
 import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
+import Data.Maybe as Maybe
 import Effect (Effect)
 import Effect.Class.Console as Console
 import JS.Intl.Collator as Collator
@@ -67,27 +68,29 @@ constructors.
 ### Format a date
 
 ```purs
-  { date1, date2 } <- Unsafe.unsafePartial do
-    maybeDate1 <- JSDate.toDateTime <$> JSDate.parse "07/16/2023"
-    maybeDate2 <- JSDate.toDateTime <$> JSDate.parse "07/20/2023"
-    case maybeDate1, maybeDate2 of
-      Just date1, Just date2 -> pure { date1, date2 }
+  let
+    unsafeParseDateTime string = Unsafe.unsafePartial do
+      Maybe.fromJust <<< JSDate.toDateTime <$> JSDate.parse string
+
+  july16 <- unsafeParseDateTime "07/16/2023"
 
   dateTimeFormat <-
     DateTimeFormat.new [ en_US ]
-      { dateStyle: "long"
-      , timeStyle: "long"
-      , timeZone: "UTC"
+      { dateStyle: "full"
+      , timeStyle: "full"
+      , timeZone: "America/New_York"
       }
   let
     formattedDate =
-      DateTimeFormat.format dateTimeFormat date1
-  Console.logShow formattedDate -- "July 16, 2023 at 4:00:00 AM UTC"
+      DateTimeFormat.format dateTimeFormat july16
+  Console.log formattedDate -- Sunday, July 16, 2023 at 12:00:00 AM Eastern Daylight Time
 ```
 
 ### Format a date range
 
 ```purs
+  july20 <- unsafeParseDateTime "07/20/2023"
+
   dateTimeRangeFormat <-
     DateTimeFormat.new [ en_US ]
       { dateStyle: "medium"
@@ -95,8 +98,8 @@ constructors.
       }
   let
     formattedDateRange =
-      DateTimeFormat.formatRange dateTimeRangeFormat date1 date2
-  Console.logShow formattedDateRange -- "Jul 16 – 20, 2023"
+      DateTimeFormat.formatRange dateTimeRangeFormat july16 july20
+  Console.log formattedDateRange -- Jul 16 – 20, 2023
 ```
 
 ### Sort a collection of strings by natural sort order
@@ -106,7 +109,7 @@ constructors.
   let
     sortedStrings =
       Array.sortBy (Collator.compare collator) [ "Chapter 1", "Chapter 11", "Chapter 2" ]
-  Console.logShow sortedStrings -- [ "Chapter 1", "Chapter 2", "Chapter 11" ]
+  Console.logShow sortedStrings -- ["Chapter 1","Chapter 2","Chapter 11"]
 ```
 
 ### Format a number as currency
@@ -119,7 +122,7 @@ constructors.
       }
   let
     formattedUSD = NumberFormat.format usdCurrencyFormat 123456.789
-  Console.logShow formattedUSD -- "$123,456.79"
+  Console.log formattedUSD -- $123,456.79
 ```
 
 ### Format a number as megabytes (or whatever unit)
@@ -133,7 +136,7 @@ constructors.
       }
   let
     formattedMB = NumberFormat.format mbNumberFormat 123456.789
-  Console.logShow formattedMB -- "123,457 MB"
+  Console.log formattedMB -- 123,457 MB
 ```
 
 ### Get a list of words from a sentence
@@ -147,7 +150,7 @@ constructors.
           if isWordLike then
             Just segment
           else Nothing
-  Console.logShow words -- [ "Hey", "How", "are", "ya", "Jim" ]
+  Console.logShow words -- ["Hey","How","are","ya","Jim"]
 ```
 
 ### Type safety and overloaded API
@@ -180,7 +183,7 @@ overloaded to accept these values as well.
       }
   let
     formattedSeconds = NumberFormat.format secondsNumberFormat 123456.789
-  Console.logShow formattedSeconds -- "123.5K sec"
+  Console.log formattedSeconds -- 123.5K sec
 ```
 See the `ConvertOption` type class instances in each of the service
 constructor modules to see what options are available as typed enums. Note

@@ -1,4 +1,4 @@
-# `js-intl`
+# js-intl
 
 [![Latest release](http://img.shields.io/github/release/pete-murphy/purescript-js-intl.svg)](https://github.com/pete-murphy/purescript-js-intl/releases)
 [![Build status](https://github.com/pete-murphy/purescript-js-intl/workflows/CI/badge.svg?branch=main)](https://github.com/pete-murphy/purescript-js-intl/actions?query=workflow%3ACI+branch%3Amain)
