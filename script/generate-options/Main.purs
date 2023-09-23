@@ -256,6 +256,16 @@ options =
         , { name: "Sentence", toString: "sentence" }
         ]
     }
+  , { name: "PluralCategory"
+    , constructors:
+        [ { name: "Zero", toString: "zero" }
+        , { name: "One", toString: "one" }
+        , { name: "Two", toString: "two" }
+        , { name: "Few", toString: "few" }
+        , { name: "Many", toString: "many" }
+        , { name: "Other", toString: "other" }
+        ]
+    }
   ]
   where
   twoDigitNumeric =

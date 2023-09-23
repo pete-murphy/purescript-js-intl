@@ -26,8 +26,11 @@ import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
 import JS.Intl.Locale (Locale)
+import JS.Intl.Options.Internal.Unsafe as Unsafe
 import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
 import JS.Intl.Options.LocaleMatcher as LocaleMatcher
+import JS.Intl.Options.PluralCategory (PluralCategory)
+import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.PluralRulesType (PluralRulesType)
 import JS.Intl.Options.PluralRulesType as PluralRulesType
 import Unsafe.Coerce as Unsafe.Coerce
@@ -144,13 +147,11 @@ foreign import _select
        Int
        String
 
-type PluralCategory = String -- TODO: Should be "zero", "one", "two" "few", "many", "other"
-
 -- | Returns a string indicating which plural rule to use for locale-aware
 -- | formatting
 select :: PluralRules -> Int -> PluralCategory
-select =
-  Function.Uncurried.runFn2 _select
+select rules n =
+  Unsafe.fromString PluralCategory.fromString (Function.Uncurried.runFn2 _select rules n)
 
 foreign import _selectRange
   :: Fn3
@@ -159,28 +160,32 @@ foreign import _selectRange
        Int
        String
 
--- | Receives two values and returns a string indicating which plural rule to
--- | use for locale-aware formatting
+-- | Receives two values and returns a `PluralRule` indicating which plural rule
+-- | to use for locale-aware formatting
 selectRange
   :: PluralRules
   -> Int
   -> Int
   -> PluralCategory
-selectRange =
-  Function.Uncurried.runFn3 _selectRange
-
-type ResolvedOptions =
-  { locale :: String
-  , type :: String
-  , pluralCategories :: Array PluralCategory
-  }
+selectRange rules n0 n1 =
+  Unsafe.fromString PluralCategory.fromString (Function.Uncurried.runFn3 _selectRange rules n0 n1)
 
 foreign import _resolvedOptions
   :: EffectFn1
        PluralRules
-       ResolvedOptions
+       { locale :: String
+       , type :: String
+       , pluralCategories :: Array String
+       }
 
 resolvedOptions
   :: PluralRules
-  -> Effect ResolvedOptions
-resolvedOptions = Effect.Uncurried.runEffectFn1 _resolvedOptions
+  -> Effect
+       { locale :: String
+       , type :: String
+       , pluralCategories :: Array PluralCategory
+       }
+resolvedOptions rules = do
+  resolved <- Effect.Uncurried.runEffectFn1 _resolvedOptions rules
+  pure (resolved { pluralCategories = map (Unsafe.fromString PluralCategory.fromString) resolved.pluralCategories })
+

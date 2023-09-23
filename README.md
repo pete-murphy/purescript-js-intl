@@ -45,7 +45,10 @@ import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
 import JS.Intl.Options.Notation as Notation
 import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
+import JS.Intl.Options.PluralCategory (PluralCategory)
+import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.UnitDisplay as UnitDisplay
+import JS.Intl.PluralRules as PluralRules
 import JS.Intl.Segmenter as Segmenter
 import Partial.Unsafe as Unsafe
 
@@ -80,6 +83,7 @@ constructors.
       , timeStyle: "full"
       , timeZone: "America/New_York"
       }
+
   let
     formattedDate =
       DateTimeFormat.format dateTimeFormat july16
@@ -96,9 +100,11 @@ constructors.
       { dateStyle: "medium"
       , timeZone: "UTC"
       }
+
   let
     formattedDateRange =
       DateTimeFormat.formatRange dateTimeRangeFormat july16 july20
+
   Console.log formattedDateRange -- Jul 16 – 20, 2023
 ```
 
@@ -106,9 +112,11 @@ constructors.
 
 ```purs
   collator <- Collator.new [ en_US ] { numeric: true }
+
   let
     sortedStrings =
       Array.sortBy (Collator.compare collator) [ "Chapter 1", "Chapter 11", "Chapter 2" ]
+
   Console.logShow sortedStrings -- ["Chapter 1","Chapter 2","Chapter 11"]
 ```
 
@@ -120,8 +128,10 @@ constructors.
       { style: "currency"
       , currency: "USD"
       }
+
   let
     formattedUSD = NumberFormat.format usdCurrencyFormat 123456.789
+
   Console.log formattedUSD -- $123,456.79
 ```
 
@@ -134,8 +144,10 @@ constructors.
       , unit: "megabyte"
       , maximumFractionDigits: 0
       }
+
   let
     formattedMB = NumberFormat.format mbNumberFormat 123456.789
+
   Console.log formattedMB -- 123,457 MB
 ```
 
@@ -143,6 +155,7 @@ constructors.
 
 ```purs
   segmenter <- Segmenter.new [ en_US ] { granularity: "word" }
+
   let
     sentence = "Hey! How are ya, Jim?"
     words = Segmenter.segment segmenter sentence
@@ -150,7 +163,33 @@ constructors.
           if isWordLike then
             Just segment
           else Nothing
+
   Console.logShow words -- ["Hey","How","are","ya","Jim"]
+```
+
+### Format numbers as ordinal (1st, 2nd, 3rd, etc.)
+
+```purs
+  let
+    ordinalSuffix :: PluralCategory -> String
+    ordinalSuffix = case _ of
+      PluralCategory.Zero -> "th"
+      PluralCategory.One -> "st"
+      PluralCategory.Two -> "nd"
+      PluralCategory.Few -> "rd"
+      PluralCategory.Many -> "th"
+      PluralCategory.Other -> "th"
+
+  pluralRules <- PluralRules.new [ en_US ] { type: "ordinal" }
+
+  let
+    numbers = [ 1, 2, 3, 81, 138 ]
+    formattedOrdinals = numbers <#> \number -> do
+      let
+        suffix = ordinalSuffix (PluralRules.select pluralRules number)
+      show number <> suffix
+
+  Console.logShow formattedOrdinals -- ["1st","2nd","3rd","81st","138th"]
 ```
 
 ### Type safety and overloaded API
@@ -181,8 +220,10 @@ overloaded to accept these values as well.
       , notation: Notation.Compact
       , maximumFractionDigits: 1
       }
+
   let
     formattedSeconds = NumberFormat.format secondsNumberFormat 123456.789
+
   Console.log formattedSeconds -- 123.5K sec
 ```
 See the `ConvertOption` type class instances in each of the service

@@ -26,6 +26,8 @@ import JS.Intl.Options.Collation as Collation
 import JS.Intl.Options.DateStyle as DateStyle
 import JS.Intl.Options.HourCycle as HourCycle
 import JS.Intl.Options.LocaleMatcher (LocaleMatcher(..))
+import JS.Intl.Options.PluralCategory (PluralCategory(..))
+import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.RelativeTimeUnit (RelativeTimeUnit(..))
 import JS.Intl.Options.Sensitivity (Sensitivity(..))
 import JS.Intl.Options.TimeStyle as TimeStyle
@@ -761,18 +763,18 @@ test_PluralRules = do
   pluralRules <- PluralRules.new [ en_US ] { type: "ordinal" }
 
   Console.log "PluralRules.select"
-  Test.assertEqual
+  Test.assertEqualWith PluralCategory.toString
     { actual: PluralRules.select pluralRules 1
-    , expected: "one"
+    , expected: One
     }
 
   Console.log "PluralRules.resolvedOptions"
   resolvedOptions <- PluralRules.resolvedOptions pluralRules
-  Test.assertEqual
+  Test.assertEqualWith (show <<< \opts -> opts { pluralCategories = map PluralCategory.toString opts.pluralCategories })
     { actual: resolvedOptions
     , expected:
         { locale: "en"
-        , pluralCategories: [ "few", "one", "two", "other" ]
+        , pluralCategories: [ Few, One, Two, Other ]
         , type: "ordinal"
         }
     }
