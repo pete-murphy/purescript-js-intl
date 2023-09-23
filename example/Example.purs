@@ -18,7 +18,6 @@ import JS.Intl.NumberFormat as NumberFormat
 import JS.Intl.Options.Notation as Notation
 import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
 import JS.Intl.Options.PluralCategory (PluralCategory(..))
-import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.UnitDisplay as UnitDisplay
 import JS.Intl.PluralRules as PluralRules
 import JS.Intl.Segmenter as Segmenter
@@ -141,13 +140,13 @@ main = do
   pluralRules <- PluralRules.new [ en_US ] { type: "ordinal" }
 
   let
-    numbers = [ 1, 2, 3, 81, 138 ]
+    numbers = [ 1, 2, 3, 8, 21 ]
     formattedOrdinals = numbers <#> \number -> do
       let
         suffix = ordinalSuffix (PluralRules.select pluralRules number)
       show number <> suffix
 
-  Console.logShow formattedOrdinals -- ["1st","2nd","3rd","81st","138th"]
+  Console.logShow formattedOrdinals -- ["1st","2nd","3rd","8th","21st"]
   --
   -- ### Type safety and overloaded API
   --

@@ -16,7 +16,7 @@ spago install js-intl
 
 Module documentation is [published on Pursuit](http://pursuit.purescript.org/packages/purescript-js-intl).
 
-See also: the official specification published [here](https://tc39.es/ecma402/), MDN documentation [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl).
+See also: the ECMA-402 specification published [here](https://tc39.es/ecma402/), MDN documentation for `Intl` [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl).
 
 ## How to use this library
 
