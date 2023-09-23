@@ -6,10 +6,7 @@
 [![Build status](https://github.com/pete-murphy/purescript-js-intl/workflows/CI/badge.svg?branch=main)](https://github.com/pete-murphy/purescript-js-intl/actions?query=workflow%3ACI+branch%3Amain)
 [![Pursuit](https://pursuit.purescript.org/packages/purescript-js-intl/badge)](https://pursuit.purescript.org/packages/purescript-js-intl)
 
-Type definitions and low-level bindings for the [ECMA 402 specification for the `Intl` object](https://tc39.es/ecma402/#intl-object).
-
-> **Note**
-> Implementations of the specification vary across platforms. For example `Intl.supportedValuesOf` will return different values when run in Node compared to Chrome or Firefox, etc. Some areas of the API may only have partial support—check the [MDN browser compatibility tables](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#browser_compatibility).
+Type definitions and low-level bindings for the `Intl` object.
 
 ## Installation
 
@@ -20,7 +17,8 @@ spago install js-intl
 ## Documentation
 
 Module documentation is [published on Pursuit](http://pursuit.purescript.org/packages/purescript-js-intl).
-See also, MDN Documentation on `Intl`: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl.
+
+See also: the official specification published [here](https://tc39.es/ecma402/), MDN documentation [here](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl).
 
 ## How to use this library
 
@@ -45,7 +43,7 @@ import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
 import JS.Intl.Options.Notation as Notation
 import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
-import JS.Intl.Options.PluralCategory (PluralCategory)
+import JS.Intl.Options.PluralCategory (PluralCategory(..))
 import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.UnitDisplay as UnitDisplay
 import JS.Intl.PluralRules as PluralRules
@@ -75,25 +73,27 @@ constructors.
     unsafeParseDateTime string = Unsafe.unsafePartial do
       Maybe.fromJust <<< JSDate.toDateTime <$> JSDate.parse string
 
-  july16 <- unsafeParseDateTime "07/16/2023"
+  sep22 <- unsafeParseDateTime "2023-09-22T14:30-04:00"
 
   dateTimeFormat <-
     DateTimeFormat.new [ en_US ]
-      { dateStyle: "full"
-      , timeStyle: "full"
+      { weekday: "long"
+      , hour: "numeric"
+      , minute: "numeric"
       , timeZone: "America/New_York"
       }
 
   let
     formattedDate =
-      DateTimeFormat.format dateTimeFormat july16
-  Console.log formattedDate -- Sunday, July 16, 2023 at 12:00:00 AM Eastern Daylight Time
+      DateTimeFormat.format dateTimeFormat sep22
+
+  Console.log formattedDate -- Friday 2:30 PM
 ```
 
 ### Format a date range
 
 ```purs
-  july20 <- unsafeParseDateTime "07/20/2023"
+  sep30 <- unsafeParseDateTime "2023-09-30"
 
   dateTimeRangeFormat <-
     DateTimeFormat.new [ en_US ]
@@ -103,9 +103,9 @@ constructors.
 
   let
     formattedDateRange =
-      DateTimeFormat.formatRange dateTimeRangeFormat july16 july20
+      DateTimeFormat.formatRange dateTimeRangeFormat sep22 sep30
 
-  Console.log formattedDateRange -- Jul 16 – 20, 2023
+  Console.log formattedDateRange -- Sep 22 – 30, 2023
 ```
 
 ### Sort a collection of strings by natural sort order
@@ -173,12 +173,12 @@ constructors.
   let
     ordinalSuffix :: PluralCategory -> String
     ordinalSuffix = case _ of
-      PluralCategory.Zero -> "th"
-      PluralCategory.One -> "st"
-      PluralCategory.Two -> "nd"
-      PluralCategory.Few -> "rd"
-      PluralCategory.Many -> "th"
-      PluralCategory.Other -> "th"
+      Zero -> "th"
+      One -> "st"
+      Two -> "nd"
+      Few -> "rd"
+      Many -> "th"
+      Other -> "th"
 
   pluralRules <- PluralRules.new [ en_US ] { type: "ordinal" }
 

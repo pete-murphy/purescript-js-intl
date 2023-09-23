@@ -17,7 +17,7 @@ import JS.Intl.Locale as Locale
 import JS.Intl.NumberFormat as NumberFormat
 import JS.Intl.Options.Notation as Notation
 import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
-import JS.Intl.Options.PluralCategory (PluralCategory)
+import JS.Intl.Options.PluralCategory (PluralCategory(..))
 import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.UnitDisplay as UnitDisplay
 import JS.Intl.PluralRules as PluralRules
@@ -43,23 +43,25 @@ main = do
     unsafeParseDateTime string = Unsafe.unsafePartial do
       Maybe.fromJust <<< JSDate.toDateTime <$> JSDate.parse string
 
-  july16 <- unsafeParseDateTime "07/16/2023"
+  sep22 <- unsafeParseDateTime "2023-09-22T14:30-04:00"
 
   dateTimeFormat <-
     DateTimeFormat.new [ en_US ]
-      { dateStyle: "full"
-      , timeStyle: "full"
+      { weekday: "long"
+      , hour: "numeric"
+      , minute: "numeric"
       , timeZone: "America/New_York"
       }
 
   let
     formattedDate =
-      DateTimeFormat.format dateTimeFormat july16
-  Console.log formattedDate -- Sunday, July 16, 2023 at 12:00:00 AM Eastern Daylight Time
+      DateTimeFormat.format dateTimeFormat sep22
+
+  Console.log formattedDate -- Friday 2:30 PM
   --
   -- ### Format a date range
   --
-  july20 <- unsafeParseDateTime "07/20/2023"
+  sep30 <- unsafeParseDateTime "2023-09-30"
 
   dateTimeRangeFormat <-
     DateTimeFormat.new [ en_US ]
@@ -69,9 +71,9 @@ main = do
 
   let
     formattedDateRange =
-      DateTimeFormat.formatRange dateTimeRangeFormat july16 july20
+      DateTimeFormat.formatRange dateTimeRangeFormat sep22 sep30
 
-  Console.log formattedDateRange -- Jul 16 – 20, 2023
+  Console.log formattedDateRange -- Sep 22 – 30, 2023
   --
   -- ### Sort a collection of strings by natural sort order
   --
@@ -129,12 +131,12 @@ main = do
   let
     ordinalSuffix :: PluralCategory -> String
     ordinalSuffix = case _ of
-      PluralCategory.Zero -> "th"
-      PluralCategory.One -> "st"
-      PluralCategory.Two -> "nd"
-      PluralCategory.Few -> "rd"
-      PluralCategory.Many -> "th"
-      PluralCategory.Other -> "th"
+      Zero -> "th"
+      One -> "st"
+      Two -> "nd"
+      Few -> "rd"
+      Many -> "th"
+      Other -> "th"
 
   pluralRules <- PluralRules.new [ en_US ] { type: "ordinal" }
 
