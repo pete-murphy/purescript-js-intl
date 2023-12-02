@@ -8,46 +8,22 @@ on:
   pull_request:
     branches: [main]
 
-# Run CI on all 3 latest OSes
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - uses: purescript-contrib/setup-purescript@main
-        with:
-          purescript: "0.15.9"
-          purs-tidy: "0.10.0"
-          psa: "0.8.2"
-          spago: "unstable"
+      - name: "Nix check"
+        run: nix flake check
 
-      - name: Cache PureScript dependencies
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
-          path: |
-            .spago
-            output
-
-      - name: Set up Node toolchain
-        uses: actions/setup-node@v2
-        with:
-          node-version: "18"
-
-      # Compile the library/project
-      #   censor-lib: ignore warnings emitted by dependencies
-      #   strict: convert warnings into errors
-      # Note: `purs-args` actually forwards these args to `psa`
-      - name: Build the project
+      - name: "Run tests"
         run: |
-          spago build --purs-args "--censor-lib --strict"
+          nix develop --command 'run-install'
+          nix develop --command 'run-test'
 
-      - name: Run tests
-        run: |
-          spago -x test.dhall test
+      - name: "Check format"
+        run: nix develop --command 'run-check-format'
 
-      - name: Check Formatting
-        run: |
-          purs-tidy check src test
