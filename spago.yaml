@@ -1,0 +1,36 @@
+package:
+  name: js-intl
+  dependencies:
+    - arrays
+    - convertable-options
+    - datetime
+    - effect
+    - foreign
+    - functions
+    - js-date
+    - maybe
+    - nullable
+    - partial
+    - prelude
+    - tuples
+    - unfoldable
+    - unsafe-coerce
+  test:
+    dependencies:
+      - assert
+      - console
+      - debug
+      - effect
+      - foldable-traversable
+      - functions
+      - js-date
+      - prelude
+      - record
+      - strings
+      - unsafe-coerce
+    main: Test.Main
+workspace:
+  extra_packages: {}
+  package_set:
+    url: https://raw.githubusercontent.com/purescript/package-sets/psc-0.15.8-20230607/packages.json
+    hash: sha256-bn4pSvOLCKn1orFRn5nvsnNEPGBxRWhuB1gf6CAH+i8=
