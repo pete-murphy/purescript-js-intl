@@ -21,7 +21,7 @@ jobs:
           purescript: "0.15.9"
           purs-tidy: "0.10.0"
           psa: "0.8.2"
-          spago: "0.21.0"
+          spago: "unstable"
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
