@@ -1,0 +1,22 @@
+package:
+  dependencies:
+    - aff
+    - arrays
+    - console
+    - control
+    - debug
+    - effect
+    - foldable-traversable
+    - node-buffer
+    - node-fs-aff
+    - node-path
+    - partial
+    - prelude
+    - strings
+    - tuples
+  name: js-intl-script
+workspace:
+  extra_packages: {}
+  package_set:
+    url: https://raw.githubusercontent.com/purescript/package-sets/psc-0.15.9-20230718/packages.json
+    hash: sha256-Fbej7t7H4E+a1djmf7pO9QwIaSpzbr8HR/fnpPMj/Dg=

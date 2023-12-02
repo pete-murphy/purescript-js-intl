@@ -1,0 +1,92 @@
+package:
+  dependencies:
+    - aff
+    - arrays
+    - console
+    - control
+    - debug
+    - effect
+    - exceptions
+    - foldable-traversable
+    - foreign-object
+    - language-cst-parser
+    - maybe
+    - node-buffer
+    - node-fs
+    - node-fs-aff
+    - node-path
+    - node-process
+    - partial
+    - prelude
+    - strings
+    - tidy
+    - tidy-codegen
+    - transformers
+    - tuples
+  name: js-intl-script
+workspace:
+  extra_packages:
+    tidy:
+      dependencies:
+        - arrays
+        - dodo-printer
+        - foldable-traversable
+        - language-cst-parser
+        - lists
+        - maybe
+        - ordered-collections
+        - partial
+        - prelude
+        - strings
+        - tuples
+      git: https://github.com/natefaubion/purescript-tidy.git
+      ref: v0.10.0
+    tidy-codegen:
+      dependencies:
+        - aff
+        - ansi
+        - arrays
+        - avar
+        - bifunctors
+        - console
+        - control
+        - dodo-printer
+        - effect
+        - either
+        - enums
+        - exceptions
+        - filterable
+        - foldable-traversable
+        - free
+        - identity
+        - integers
+        - language-cst-parser
+        - lazy
+        - lists
+        - maybe
+        - newtype
+        - node-buffer
+        - node-child-process
+        - node-fs-aff
+        - node-path
+        - node-process
+        - node-streams
+        - ordered-collections
+        - parallel
+        - partial
+        - posix-types
+        - prelude
+        - record
+        - safe-coerce
+        - st
+        - strings
+        - tidy
+        - transformers
+        - tuples
+        - type-equality
+        - unicode
+      git: https://github.com/natefaubion/purescript-tidy-codegen
+      ref: v4.0.0
+  package_set:
+    url: https://raw.githubusercontent.com/purescript/package-sets/psc-0.15.9-20230718/packages.json
+    hash: sha256-Fbej7t7H4E+a1djmf7pO9QwIaSpzbr8HR/fnpPMj/Dg=

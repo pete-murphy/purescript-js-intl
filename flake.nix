@@ -13,12 +13,12 @@
         pkgs = import nixpkgs { inherit system overlays; };
       in {
         devShells.default = pkgs.mkShell {
-          buildInputs = [
-            pkgs.nodejs_18
-            pkgs.purs
-            pkgs.spago-unstable
-            pkgs.purs-tidy-bin.purs-tidy-0_10_0
-            pkgs.purs-backend-es
+          buildInputs = with pkgs; [
+            purs
+            purs-tidy
+            purs-backend-es
+            nodejs
+            spago-unstable
           ];
         };
       });
