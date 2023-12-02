@@ -15,9 +15,27 @@
     flake-utils.lib.eachDefaultSystem (system: let
       overlays = [purescript-overlay.overlays.default];
       pkgs = import nixpkgs {inherit system overlays;};
+      scripts = pkgs.symlinkJoin {
+        name = "scripts";
+        paths = pkgs.lib.mapAttrsToList pkgs.writeShellScriptBin {
+          run-install = ''
+            spago install
+          '';
+
+          run-test = ''
+            spago test
+          '';
+
+          run-check-format = ''
+            purs-tidy check src test
+          '';
+        };
+      };
     in {
       devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [
+          scripts
+
           # PureScript tools
           purs
           purs-tidy
@@ -36,11 +54,9 @@
           {
             buildInputs = with pkgs; [
               alejandra
-              purs-tidy
             ];
           } ''
             ${pkgs.alejandra}/bin/alejandra --check ${./.}
-            ${pkgs.purs-tidy}/bin/purs-tidy check ${./src}
             touch $out
           '';
       };
