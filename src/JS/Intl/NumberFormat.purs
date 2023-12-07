@@ -16,6 +16,9 @@ module JS.Intl.NumberFormat
   , formatRangeToParts
   , formatToParts
   , resolvedOptions
+
+  -- * Options
+  , convertOptionsWithDefaults
   ) where
 
 import Prelude
@@ -95,6 +98,20 @@ defaultOptions :: { | NumberFormatOptions }
 defaultOptions =
   Unsafe.Coerce.unsafeCoerce {}
 
+convertOptionsWithDefaults
+  :: forall provided all
+   . ConvertOptionsWithDefaults
+       ToNumberFormatOptions
+       { | NumberFormatOptions }
+       provided
+       all
+  => provided
+  -> all
+convertOptionsWithDefaults =
+  ConvertableOptions.convertOptionsWithDefaults
+    ToNumberFormatOptions
+    defaultOptions
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
@@ -113,14 +130,11 @@ new
   => Array Locale
   -> { | provided }
   -> Effect NumberFormat
-new locales provided =
+new locales providedOptions =
   Effect.Uncurried.runEffectFn2
     _new
     locales
-    options
-  where
-  options :: { | NumberFormatOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults ToNumberFormatOptions defaultOptions provided
+    (convertOptionsWithDefaults providedOptions)
 
 instance ConvertOption ToNumberFormatOptions "localeMatcher" LocaleMatcher String where
   convertOption _ _ = LocaleMatcher.toString
@@ -262,14 +276,11 @@ supportedLocalesOf
   => Array Locale
   -> { | provided }
   -> Array String
-supportedLocalesOf locales provided =
+supportedLocalesOf locales providedOptions =
   Function.Uncurried.runFn2
     _supportedLocalesOf
     locales
-    options
-  where
-  options :: { | NumberFormatOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults ToNumberFormatOptions defaultOptions provided
+    (convertOptionsWithDefaults providedOptions)
 
 supportedLocalesOf_
   :: Array Locale

@@ -7,7 +7,9 @@ import Data.DateTime (DateTime(..))
 import Data.DateTime as DateTime
 import Data.Enum as Enum
 import Data.Foldable as Foldable
+import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
+import Data.Maybe as Maybe
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
 import Effect (Effect)
@@ -26,6 +28,7 @@ import JS.Intl.Options.Collation as Collation
 import JS.Intl.Options.DateStyle as DateStyle
 import JS.Intl.Options.HourCycle as HourCycle
 import JS.Intl.Options.LocaleMatcher (LocaleMatcher(..))
+import JS.Intl.Options.NumberFormatStyle as NumberFormatStyle
 import JS.Intl.Options.PluralCategory (PluralCategory(..))
 import JS.Intl.Options.PluralCategory as PluralCategory
 import JS.Intl.Options.RelativeTimeUnit (RelativeTimeUnit(..))
@@ -35,6 +38,9 @@ import JS.Intl.Options.Usage (Usage(..))
 import JS.Intl.PluralRules as PluralRules
 import JS.Intl.RelativeTimeFormat as RelativeTimeFormat
 import JS.Intl.Segmenter as Segmenter
+import JS.LocaleSensitive.Date as LocaleSensitive.Date
+import JS.LocaleSensitive.Number as LocaleSensitive.Number
+import JS.LocaleSensitive.String as LocaleSensitive.String
 import Partial.Unsafe as Unsafe
 import Test.Assert.Extended as Test
 import Unsafe.Coerce as Unsafe.Coerce
@@ -52,6 +58,8 @@ main = do
   test_PluralRules
   test_RelativeTimeFormat
   test_Segmenter
+
+  test_LocaleSensitive
 
 -- NOTE: There are inconsistencies across platforms with how
 -- `DateTimeFormat.formatRange`, `DateTimeFormat.formatRangeToParts`,
@@ -859,3 +867,113 @@ test_Segmenter = do
         , granularity: "word"
         }
     }
+
+test_LocaleSensitive :: Effect Unit
+test_LocaleSensitive = do
+  en_US <- Locale.new_ "en-US"
+  dec4 <- unsafeParseDateTime "2020-12-04T00:00:00Z"
+
+  Console.log "LocaleSensitive.Date.toLocaleString"
+  do
+    actual <- LocaleSensitive.Date.toLocaleString [ en_US ] { timeZone: "UTC" } dec4
+    Test.assertEqual
+      { actual
+      , expected: "12/4/2020, 12:00:00 AM"
+      }
+
+  Console.log "LocaleSensitive.Date.toLocaleDateString"
+  do
+    actual <- LocaleSensitive.Date.toLocaleDateString [ en_US ] { timeZone: "UTC" } dec4
+    Test.assertEqual
+      { actual
+      , expected: "12/4/2020"
+      }
+
+  Console.log "LocaleSensitive.Date.toLocaleTimeString"
+  do
+    actual <- LocaleSensitive.Date.toLocaleTimeString [ en_US ] { timeZone: "UTC" } dec4
+    Test.assertEqual
+      { actual
+      , expected: "12:00:00 AM"
+      }
+
+  Console.log "LocaleSensitive.String.localeCompare"
+  do
+    actual <- LocaleSensitive.String.localeCompare [ en_US ] {} "ä" "b"
+    Test.assertEqual
+      { actual
+      , expected: LT
+      }
+  do
+    actual <- LocaleSensitive.String.localeCompare [ en_US ] {} "a" "a"
+    Test.assertEqual
+      { actual
+      , expected: EQ
+      }
+  do
+    actual <- LocaleSensitive.String.localeCompare [ en_US ] { numeric: false } "12" "100"
+    Test.assertEqual
+      { actual
+      , expected: GT
+      }
+  do
+    actual <- LocaleSensitive.String.localeCompare [ en_US ] { numeric: true } "12" "100"
+    Test.assertEqual
+      { actual
+      , expected: LT
+      }
+
+  Console.log "LocaleSensitive.String.toLocaleLowerCase"
+  do
+    actual <- LocaleSensitive.String.toLocaleLowerCase [ en_US ] "İstanbul"
+    Test.assertEqual
+      { actual
+      , expected: "i̇stanbul"
+      }
+  do
+    tr <- Locale.new_ "tr"
+    actual <- LocaleSensitive.String.toLocaleLowerCase [ tr ] "İstanbul"
+    Test.assertEqual
+      { actual
+      , expected: "istanbul"
+      }
+
+  Console.log "LocaleSensitive.String.toLocaleUpperCase"
+  do
+    actual <- LocaleSensitive.String.toLocaleUpperCase [ en_US ] "istanbul"
+    Test.assertEqual
+      { actual
+      , expected: "ISTANBUL"
+      }
+  do
+    tr <- Locale.new_ "tr"
+    actual <- LocaleSensitive.String.toLocaleUpperCase [ tr ] "istanbul"
+    Test.assertEqual
+      { actual
+      , expected: "İSTANBUL"
+      }
+
+  Console.log "LocaleSensitive.Number.toLocaleString"
+  do
+    actual <- LocaleSensitive.Number.toLocaleString [ en_US ] {} 123456.789
+    Test.assertEqual
+      { actual
+      , expected: "123,456.789"
+      }
+  do
+    ar_EG <- Locale.new_ "ar-EG"
+    actual <- LocaleSensitive.Number.toLocaleString [ ar_EG ] {} 123456.789
+    Test.assertEqual
+      { actual
+      , expected: "١٢٣٬٤٥٦٫٧٨٩"
+      }
+  do
+    actual <- LocaleSensitive.Number.toLocaleString [ en_US ] { style: NumberFormatStyle.Currency, currency: "USD", maximumSignificantDigits: 3 } 123456.789
+    Test.assertEqual
+      { actual
+      , expected: "$123,000"
+      }
+
+unsafeParseDateTime :: String -> Effect DateTime
+unsafeParseDateTime string = Unsafe.unsafePartial do
+  Maybe.fromJust <<< JSDate.toDateTime <$> JSDate.parse string

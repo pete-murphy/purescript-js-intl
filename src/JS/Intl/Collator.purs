@@ -13,6 +13,9 @@ module JS.Intl.Collator
   , supportedLocalesOf_
   , compare
   , resolvedOptions
+
+  -- * Options
+  , convertOptionsWithDefaults
   ) where
 
 import Prelude hiding (compare)
@@ -61,6 +64,20 @@ defaultOptions =
   , collation: Collation.toString Collation.Default
   }
 
+convertOptionsWithDefaults
+  :: forall provided all
+   . ConvertOptionsWithDefaults
+       ToCollatorOptions
+       { | CollatorOptions }
+       provided
+       all
+  => provided
+  -> all
+convertOptionsWithDefaults =
+  ConvertableOptions.convertOptionsWithDefaults
+    ToCollatorOptions
+    defaultOptions
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
@@ -89,10 +106,7 @@ new locales providedOptions =
   Effect.Uncurried.runEffectFn2
     _new
     locales
-    options
-  where
-  options :: { | CollatorOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults ToCollatorOptions defaultOptions providedOptions
+    (convertOptionsWithDefaults providedOptions)
 
 instance ConvertOption ToCollatorOptions "localeMatcher" LocaleMatcher String where
   convertOption _ _ = LocaleMatcher.toString
@@ -150,10 +164,7 @@ supportedLocalesOf locales providedOptions =
   Function.Uncurried.runFn2
     _supportedLocalesOf
     locales
-    options
-  where
-  options :: { | CollatorOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults ToCollatorOptions defaultOptions providedOptions
+    (convertOptionsWithDefaults providedOptions)
 
 supportedLocalesOf_
   :: Array Locale
