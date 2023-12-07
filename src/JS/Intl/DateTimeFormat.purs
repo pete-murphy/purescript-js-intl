@@ -16,6 +16,9 @@ module JS.Intl.DateTimeFormat
   , formatRangeToParts
   , formatToParts
   , resolvedOptions
+
+  -- * Options
+  , convertOptionsWithDefaults
   ) where
 
 import Prelude
@@ -92,6 +95,20 @@ defaultOptions :: { | DateTimeFormatOptions }
 defaultOptions =
   Unsafe.Coerce.unsafeCoerce {}
 
+convertOptionsWithDefaults
+  :: forall provided all
+   . ConvertOptionsWithDefaults
+       ToDateTimeFormatOptions
+       { | DateTimeFormatOptions }
+       provided
+       all
+  => provided
+  -> all
+convertOptionsWithDefaults =
+  ConvertableOptions.convertOptionsWithDefaults
+    ToDateTimeFormatOptions
+    defaultOptions
+
 foreign import _new
   :: EffectFn2
        (Array Locale)
@@ -116,14 +133,11 @@ new
   => Array Locale
   -> { | provided }
   -> Effect DateTimeFormat
-new locales provided =
+new locales providedOptions =
   Effect.Uncurried.runEffectFn2
     _new
     locales
-    options
-  where
-  options :: { | DateTimeFormatOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults ToDateTimeFormatOptions defaultOptions provided
+    (convertOptionsWithDefaults providedOptions)
 
 instance ConvertOption ToDateTimeFormatOptions "localeMatcher" LocaleMatcher String where
   convertOption _ _ = LocaleMatcher.toString
@@ -240,14 +254,11 @@ supportedLocalesOf
   => Array Locale
   -> { | provided }
   -> Array String
-supportedLocalesOf locales provided =
+supportedLocalesOf locales providedOptions =
   Function.Uncurried.runFn2
     _supportedLocalesOf
     locales
-    options
-  where
-  options :: { | DateTimeFormatOptions }
-  options = ConvertableOptions.convertOptionsWithDefaults ToDateTimeFormatOptions defaultOptions provided
+    (convertOptionsWithDefaults providedOptions)
 
 supportedLocalesOf_
   :: Array Locale
