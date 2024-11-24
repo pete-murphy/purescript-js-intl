@@ -45,6 +45,8 @@
           nodejs
           # Nix
           alejandra
+          # Scripting
+          just
         ];
       };
 
