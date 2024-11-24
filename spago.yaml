@@ -2,7 +2,7 @@ package:
   name: js-intl
   publish:
     license: MIT
-    version: 1.1.0
+    version: 1.1.1
     location:
       githubOwner: pete-murphy
       githubRepo: purescript-js-intl
