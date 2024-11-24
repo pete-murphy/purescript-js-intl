@@ -2,25 +2,25 @@ package:
   name: js-intl
   publish:
     license: MIT
-    version: 1.1.2
+    version: 1.1.4
     location:
       githubOwner: pete-murphy
       githubRepo: purescript-js-intl
   dependencies:
-    - arrays
-    - convertable-options
-    - datetime
-    - effect
-    - foreign
-    - functions
-    - js-date
-    - maybe
-    - nullable
-    - partial
-    - prelude
-    - tuples
-    - unfoldable
-    - unsafe-coerce
+    - arrays: ">=7.1.0 <8.0.0"
+    - convertable-options: ">=1.0.0 <2.0.0"
+    - datetime: ">=6.1.0 <7.0.0"
+    - effect: ">=4.0.0 <5.0.0"
+    - foreign: ">=7.0.0 <8.0.0"
+    - functions: ">=6.0.0 <7.0.0"
+    - js-date: ">=8.0.0 <9.0.0"
+    - maybe: ">=6.0.0 <7.0.0"
+    - nullable: ">=6.0.0 <7.0.0"
+    - partial: ">=4.0.0 <5.0.0"
+    - prelude: ">=6.0.1 <7.0.0"
+    - tuples: ">=7.0.0 <8.0.0"
+    - unfoldable: ">=6.0.0 <7.0.0"
+    - unsafe-coerce: ">=6.0.0 <7.0.0"
   test:
     dependencies:
       - assert
@@ -36,7 +36,5 @@ package:
       - unsafe-coerce
     main: Test.Main
 workspace:
-  extra_packages: {}
-  package_set:
-    url: https://raw.githubusercontent.com/purescript/package-sets/psc-0.15.8-20230607/packages.json
-    hash: sha256-bn4pSvOLCKn1orFRn5nvsnNEPGBxRWhuB1gf6CAH+i8=
+  packageSet:
+    registry: 55.1.0
