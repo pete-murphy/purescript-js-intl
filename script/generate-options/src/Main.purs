@@ -267,12 +267,77 @@ options =
         , { name: "Other", toString: "other" }
         ]
     }
+  , { name: "DurationFormatStyle"
+    , constructors:
+        narrowShortLong <>
+          [ { name: "Digital", toString: "digital" } ]
+    }
+  , { name: "Years"
+    , constructors: narrowShortLong
+    }
+  , { name: "YearsDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Months"
+    , constructors: narrowShortLong
+    }
+  , { name: "MonthsDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Weeks"
+    , constructors: narrowShortLong
+    }
+  , { name: "WeeksDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Days"
+    , constructors: narrowShortLong
+    }
+  , { name: "DaysDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Hours"
+    , constructors: narrowShortLong <> twoDigitNumeric
+    }
+  , { name: "HoursDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Minutes"
+    , constructors: narrowShortLong <> twoDigitNumeric
+    }
+  , { name: "MinutesDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Seconds"
+    , constructors: narrowShortLong <> twoDigitNumeric
+    }
+  , { name: "SecondsDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Milliseconds"
+    , constructors: narrowShortLong <> numeric
+    }
+  , { name: "MillisecondsDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Microseconds"
+    , constructors: narrowShortLong <> numeric
+    }
+  , { name: "MicrosecondsDisplay"
+    , constructors: alwaysAuto
+    }
+  , { name: "Nanoseconds"
+    , constructors: narrowShortLong <> numeric
+    }
+  , { name: "NanosecondsDisplay"
+    , constructors: alwaysAuto
+    }
   ]
   where
+  numeric = [ { name: "Numeric", toString: "numeric" } ]
   twoDigitNumeric =
-    [ { name: "Numeric", toString: "numeric" }
-    , { name: "TwoDigit", toString: "2-digit" }
-    ]
+    [ { name: "TwoDigit", toString: "2-digit" } ]
+      <> numeric
   narrowShortLong =
     [ { name: "Narrow", toString: "narrow" }
     , { name: "Short", toString: "short" }
@@ -283,6 +348,10 @@ options =
     , { name: "Long", toString: "long" }
     , { name: "Medium", toString: "medium" }
     , { name: "Short", toString: "short" }
+    ]
+  alwaysAuto =
+    [ { name: "Always", toString: "always" }
+    , { name: "Auto", toString: "auto" }
     ]
 
 makeModule :: String -> Option -> Module Void
