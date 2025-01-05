@@ -46,12 +46,8 @@ import Partial.Unsafe as Unsafe
 import Test.Assert.Extended as Test
 import Unsafe.Coerce as Unsafe.Coerce
 
-foreign import _polyfill :: Effect Unit
-
 main :: Effect Unit
 main = do
-  _polyfill
-
   test_Intl
 
   test_Collator
@@ -63,7 +59,6 @@ main = do
   test_PluralRules
   test_RelativeTimeFormat
   test_Segmenter
-  test_DurationFormat
 
   test_LocaleSensitive
 
@@ -984,68 +979,70 @@ unsafeParseDateTime :: String -> Effect DateTime
 unsafeParseDateTime string = Unsafe.unsafePartial do
   Maybe.fromJust <<< JSDate.toDateTime <$> JSDate.parse string
 
-test_DurationFormat :: Effect Unit
-test_DurationFormat = do
-  en_US <- Locale.new_ "en-US"
+-- TODO: Not yet supported in Node
 
-  Console.log "DurationFormat.supportedLocalesOf"
-  Test.assertEqual
-    { actual: DurationFormat.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
-    , expected: [ "en-US" ]
-    }
+-- test_DurationFormat :: Effect Unit
+-- test_DurationFormat = do
+--   en_US <- Locale.new_ "en-US"
 
-  Console.log "DurationFormat.supportedLocalesOf_"
-  Test.assertEqual
-    { actual: DurationFormat.supportedLocalesOf_ [ en_US ]
-    , expected: [ "en-US" ]
-    }
+--   Console.log "DurationFormat.supportedLocalesOf"
+--   Test.assertEqual
+--     { actual: DurationFormat.supportedLocalesOf [ en_US ] { localeMatcher: "best fit" }
+--     , expected: [ "en-US" ]
+--     }
 
-  format <- DurationFormat.new [ en_US ] { numberingSystem: "latn", fractionalDigits: 0 }
+--   Console.log "DurationFormat.supportedLocalesOf_"
+--   Test.assertEqual
+--     { actual: DurationFormat.supportedLocalesOf_ [ en_US ]
+--     , expected: [ "en-US" ]
+--     }
 
-  Console.log "DurationFormat.format"
-  Test.assertEqual
-    { actual: DurationFormat.format format { milliseconds: 1.0 }
-    , expected: "1 ms"
-    }
+--   format <- DurationFormat.new [ en_US ] { numberingSystem: "latn", fractionalDigits: 0 }
 
-  Console.log "DurationFormat.formatToParts"
-  Test.assertEqual
-    { actual: DurationFormat.formatToParts format { days: 1.0 }
-    , expected:
-        [ { type: "integer", value: "1" }
-        , { type: "literal", value: " " }
-        , { type: "unit", value: "day" }
-        ]
-    }
+--   Console.log "DurationFormat.format"
+--   Test.assertEqual
+--     { actual: DurationFormat.format format { milliseconds: 1.0 }
+--     , expected: "1 ms"
+--     }
 
-  Console.log "DurationFormat.resolvedOptions"
-  resolvedOptions <- DurationFormat.resolvedOptions format
-  Test.assertEqual
-    { actual: resolvedOptions
-    , expected:
-        { locale: "en"
-        , style: "short"
-        , years: "short"
-        , yearsDisplay: "auto"
-        , months: "short"
-        , monthsDisplay: "auto"
-        , weeks: "short"
-        , weeksDisplay: "auto"
-        , days: "short"
-        , daysDisplay: "auto"
-        , hours: "short"
-        , hoursDisplay: "auto"
-        , minutes: "short"
-        , minutesDisplay: "auto"
-        , seconds: "short"
-        , secondsDisplay: "auto"
-        , milliseconds: "short"
-        , millisecondsDisplay: "auto"
-        , microseconds: "short"
-        , microsecondsDisplay: "auto"
-        , nanoseconds: "short"
-        , nanosecondsDisplay: "auto"
-        , numberingSystem: "latn"
-        , fractionalDigits: 0
-        }
-    }
+--   Console.log "DurationFormat.formatToParts"
+--   Test.assertEqual
+--     { actual: DurationFormat.formatToParts format { days: 1.0 }
+--     , expected:
+--         [ { type: "integer", value: "1" }
+--         , { type: "literal", value: " " }
+--         , { type: "unit", value: "day" }
+--         ]
+--     }
+
+--   Console.log "DurationFormat.resolvedOptions"
+--   resolvedOptions <- DurationFormat.resolvedOptions format
+--   Test.assertEqual
+--     { actual: resolvedOptions
+--     , expected:
+--         { locale: "en"
+--         , style: "short"
+--         , years: "short"
+--         , yearsDisplay: "auto"
+--         , months: "short"
+--         , monthsDisplay: "auto"
+--         , weeks: "short"
+--         , weeksDisplay: "auto"
+--         , days: "short"
+--         , daysDisplay: "auto"
+--         , hours: "short"
+--         , hoursDisplay: "auto"
+--         , minutes: "short"
+--         , minutesDisplay: "auto"
+--         , seconds: "short"
+--         , secondsDisplay: "auto"
+--         , milliseconds: "short"
+--         , millisecondsDisplay: "auto"
+--         , microseconds: "short"
+--         , microsecondsDisplay: "auto"
+--         , nanoseconds: "short"
+--         , nanosecondsDisplay: "auto"
+--         , numberingSystem: "latn"
+--         , fractionalDigits: 0
+--         }
+--     }
