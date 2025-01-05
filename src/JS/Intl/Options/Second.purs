@@ -11,17 +11,17 @@ import Prelude
 
 import Data.Maybe (Maybe(..))
 
-data Second = Numeric | TwoDigit
+data Second = TwoDigit | Numeric
 
 derive instance Eq Second
 
 toString :: Second -> String
 toString = case _ of
-  Numeric -> "numeric"
   TwoDigit -> "2-digit"
+  Numeric -> "numeric"
 
 fromString :: String -> Maybe Second
 fromString = case _ of
-  "numeric" -> Just Numeric
   "2-digit" -> Just TwoDigit
+  "numeric" -> Just Numeric
   _ -> Nothing
