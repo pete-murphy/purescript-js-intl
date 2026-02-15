@@ -711,7 +711,7 @@ test_NumberFormat = do
         , style: "currency"
         , currency: "USD"
         , currencyDisplay: "symbol"
-        , useGrouping: true
+        , useGrouping: "auto"
         , minimumIntegerDigits: 1
         , minimumFractionDigits: 2
         , maximumFractionDigits: 2
@@ -721,37 +721,35 @@ test_NumberFormat = do
         }
     }
 
--- TODO: Not yet supported in Node
+  Console.log "NumberFormat.formatRange"
+  Test.assertEqual
+    { actual: NumberFormat.formatRange format 123456.789 987654.321
+        # replaceThinSpaces
+    , expected: "$123,456.79 – $987,654.32"
+        # replaceThinSpaces
+    }
 
--- Console.log "NumberFormat.formatRange"
--- Test.assertEqual
---   { actual: NumberFormat.formatRange format 123456.789 987654.321
---       # replaceThinSpaces
---   , expected: "$123,456.79–$987,654.32"
---       # replaceThinSpaces
---   }
-
--- Console.log "NumberFormat.formatRangeToParts"
--- Test.assertEqual
---   { actual: NumberFormat.formatRangeToParts format 123456.789 987654.321
---       <#> \part -> part { value = replaceThinSpaces part.value }
---   , expected:
---       [ { type: "currency", value: "$" }
---       , { type: "integer", value: "123" }
---       , { type: "group", value: "," }
---       , { type: "integer", value: "456" }
---       , { type: "decimal", value: "." }
---       , { type: "fraction", value: "79" }
---       , { type: "literal", value: "–" }
---       , { type: "currency", value: "$" }
---       , { type: "integer", value: "987" }
---       , { type: "group", value: "," }
---       , { type: "integer", value: "654" }
---       , { type: "decimal", value: "." }
---       , { type: "fraction", value: "32" }
---       ]
---         <#> \part -> part { value = replaceThinSpaces part.value }
---   }
+  Console.log "NumberFormat.formatRangeToParts"
+  Test.assertEqual
+    { actual: NumberFormat.formatRangeToParts format 123456.789 987654.321
+        <#> \part -> part { value = replaceThinSpaces part.value }
+    , expected:
+        [ { type: "currency", value: "$" }
+        , { type: "integer", value: "123" }
+        , { type: "group", value: "," }
+        , { type: "integer", value: "456" }
+        , { type: "decimal", value: "." }
+        , { type: "fraction", value: "79" }
+        , { type: "literal", value: " – " }
+        , { type: "currency", value: "$" }
+        , { type: "integer", value: "987" }
+        , { type: "group", value: "," }
+        , { type: "integer", value: "654" }
+        , { type: "decimal", value: "." }
+        , { type: "fraction", value: "32" }
+        ]
+          <#> \part -> part { value = replaceThinSpaces part.value }
+    }
 
 test_PluralRules :: Effect Unit
 test_PluralRules = do
@@ -783,7 +781,7 @@ test_PluralRules = do
     { actual: resolvedOptions
     , expected:
         { locale: "en"
-        , pluralCategories: [ Few, One, Two, Other ]
+        , pluralCategories: [ One, Two, Few, Other ]
         , type: "ordinal"
         }
     }

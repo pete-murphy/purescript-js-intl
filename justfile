@@ -8,3 +8,6 @@ project_root := justfile_directory()
     set -euo pipefail
     cd ./script/generate-options
     spago run {{project_root}}
+
+@run-example:
+    spago --config test.dhall run --main Example
