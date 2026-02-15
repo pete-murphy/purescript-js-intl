@@ -28,7 +28,6 @@ import Data.Function.Uncurried as Function.Uncurried
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
-import Foreign (Foreign)
 import JS.Intl.Locale (Locale)
 import JS.Intl.Options.Days (Days)
 import JS.Intl.Options.Days as Days
@@ -259,32 +258,6 @@ type ResolvedOptions =
   , numberingSystem :: String
   , fractionalDigits :: Int
   }
-
--- { locale: "en"
---         , style: "short"
---         , years: "short"
---         , yearsDisplay: "auto"
---         , months: "short"
---         , monthsDisplay: "auto"
---         , weeks: "short"
---         , weeksDisplay: "auto"
---         , days: "short"
---         , daysDisplay: "auto"
---         , hours: "short"
---         , hoursDisplay: "auto"
---         , minutes: "short"
---         , minutesDisplay: "auto"
---         , seconds: "short"
---         , secondsDisplay: "auto"
---         , milliseconds: "short"
---         , millisecondsDisplay: "auto"
---         , microseconds: "short"
---         , microsecondsDisplay: "auto"
---         , nanoseconds: "short"
---         , nanosecondsDisplay: "auto"
---         , numberingSystem: "latn"
---         , fractionalDigits: ""
---         }
 
 instance ConvertOption ToDurationFormatOptions "localeMatcher" LocaleMatcher String where
   convertOption _ _ = LocaleMatcher.toString
