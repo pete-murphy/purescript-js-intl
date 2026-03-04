@@ -1,3 +1,6 @@
+-- | The Intl namespace: top-level functions for internationalization.
+-- | See [ECMA-402 §8 The Intl Object](https://tc39.es/ecma402/#intl-object)
+-- | and [MDN Intl](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl).
 module JS.Intl
   ( getCanonicalLocales
   , supportedValuesOf

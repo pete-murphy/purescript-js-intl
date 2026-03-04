@@ -1,3 +1,5 @@
+-- | Unicode locale identifier (BCP 47). See [ECMA-402 §15 Locale Objects](https://tc39.es/ecma402/#locale-objects)
+-- | and [MDN Intl.Locale](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale).
 module JS.Intl.Locale
   ( Locale
   , LocaleOptions
@@ -37,7 +39,7 @@ import JS.Intl.Options.HourCycle as HourCycle
 import JS.Intl.Options.Internal.Unsafe as Unsafe
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Represents a Unicode locale identifier
+-- | An object representing a Unicode locale identifier with getters and methods.
 foreign import data Locale :: Type
 
 type LocaleOptions =

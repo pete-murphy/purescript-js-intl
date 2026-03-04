@@ -1,3 +1,5 @@
+-- | Locale-sensitive String methods: localeCompare, toLocaleLowerCase, toLocaleUpperCase.
+-- | See [ECMA-402 §20.1 Properties of the String Prototype Object](https://tc39.es/ecma402/#sec-properties-of-the-string-prototype-object).
 module JS.LocaleSensitive.String
   ( localeCompare
   , toLocaleLowerCase

@@ -1,3 +1,6 @@
+-- | Language-sensitive relative time formatting (e.g. "yesterday", "in 2 hours").
+-- | See [ECMA-402 §18 RelativeTimeFormat Objects](https://tc39.es/ecma402/#relativetimeformat-objects)
+-- | and [MDN Intl.RelativeTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/RelativeTimeFormat).
 module JS.Intl.RelativeTimeFormat
   -- * Types
   ( RelativeTimeFormat
@@ -36,7 +39,7 @@ import JS.Intl.Options.Style (Style)
 import JS.Intl.Options.Style as Style
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Language-sensitive relative time formatting
+-- | An object that formats relative time values (e.g. -1, "day" → "yesterday").
 foreign import data RelativeTimeFormat :: Type
 
 type RelativeTimeFormatOptions =

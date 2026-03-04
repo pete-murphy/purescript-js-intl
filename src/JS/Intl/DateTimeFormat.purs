@@ -1,3 +1,6 @@
+-- | Language-sensitive date and time formatting.
+-- | See [ECMA-402 §11 DateTimeFormat Objects](https://tc39.es/ecma402/#datetimeformat-objects)
+-- | and [MDN Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat).
 module JS.Intl.DateTimeFormat
   -- * Types
   ( DateTimeFormat
@@ -70,7 +73,7 @@ import JS.Intl.Options.Year (Year)
 import JS.Intl.Options.Year as Year
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Language-sensitive date and time formatting
+-- | An object that formats dates and times according to locale and options.
 foreign import data DateTimeFormat :: Type
 
 type DateTimeFormatOptions =

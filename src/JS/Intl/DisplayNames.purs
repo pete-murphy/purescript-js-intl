@@ -1,3 +1,6 @@
+-- | Consistent translation of language, region, script, currency, calendar, and
+-- | dateTimeField display names. See [ECMA-402 §12 DisplayNames Objects](https://tc39.es/ecma402/#displaynames-objects)
+-- | and [MDN Intl.DisplayNames](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DisplayNames).
 module JS.Intl.DisplayNames
   -- * Types
   ( DisplayNames
@@ -38,7 +41,8 @@ import JS.Intl.Options.Style (Style)
 import JS.Intl.Options.Style as Style
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Consistent translation of language, region and script display names
+-- | An object that provides localized names for language, region, script, currency,
+-- | calendar, or dateTimeField codes. The `type` option is required when constructing.
 foreign import data DisplayNames :: Type
 
 type DisplayNamesOptions'Optional =

@@ -1,3 +1,5 @@
+-- | Locale-sensitive Number.prototype.toLocaleString.
+-- | See [ECMA-402 §20.2.1 Number.prototype.toLocaleString](https://tc39.es/ecma402/#sec-number.prototype.tolocalestring).
 module JS.LocaleSensitive.Number
   ( toLocaleString
   ) where

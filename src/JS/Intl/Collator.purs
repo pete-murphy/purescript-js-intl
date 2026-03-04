@@ -1,3 +1,6 @@
+-- | Language-sensitive string comparison (e.g. for sorting).
+-- | See [ECMA-402 §10 Collator Objects](https://tc39.es/ecma402/#collator-objects)
+-- | and [MDN Intl.Collator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator).
 module JS.Intl.Collator
   -- * Types
   ( Collator
@@ -40,7 +43,7 @@ import JS.Intl.Options.Usage (Usage)
 import JS.Intl.Options.Usage as Usage
 import Prelude (compare) as Prelude
 
--- | Language-sensitive string comparison
+-- | An object that compares strings according to a locale and collation options.
 foreign import data Collator :: Type
 
 type CollatorOptions =

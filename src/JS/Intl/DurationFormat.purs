@@ -1,3 +1,6 @@
+-- | Language-sensitive duration formatting (e.g. "2 hours 30 minutes").
+-- | See [ECMA-402 §13 DurationFormat Objects](https://tc39.es/ecma402/#durationformat-objects)
+-- | and [MDN Intl.DurationFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DurationFormat).
 module JS.Intl.DurationFormat
   -- * Types
   ( DurationFormat
@@ -84,7 +87,7 @@ import Prim.Row (class Union)
 import Safe.Coerce as Safe.Coerce
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Language-sensitive duration formatting
+-- | An object that formats durations (years, months, ..., nanoseconds) by locale.
 foreign import data DurationFormat :: Type
 
 -- | Options to pass to the `DurationFormat` constructor (`new` or `new_`)

@@ -1,3 +1,6 @@
+-- | Language-sensitive list formatting (conjunction, disjunction, and unit lists).
+-- | See [ECMA-402 §14 ListFormat Objects](https://tc39.es/ecma402/#listformat-objects)
+-- | and [MDN Intl.ListFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/ListFormat).
 module JS.Intl.ListFormat
   -- * Types
   ( ListFormat
@@ -34,7 +37,7 @@ import JS.Intl.Options.Style (Style)
 import JS.Intl.Options.Style as Style
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Language-sensitive list formatting
+-- | An object that formats lists of values in a locale-aware way (e.g. "A, B, and C").
 foreign import data ListFormat :: Type
 
 type ListFormatOptions =
@@ -55,6 +58,8 @@ foreign import _new
 
 data ToListFormatOptions = ToListFormatOptions
 
+-- | Create a ListFormat with the given locales and options. Options include
+-- | `type` (conjunction, disjunction, unit) and `style` (long, short, narrow).
 new
   :: forall provided
    . ConvertOptionsWithDefaults

@@ -1,3 +1,6 @@
+-- | Plural-sensitive formatting and language-specific plural rules (cardinal/ordinal).
+-- | See [ECMA-402 §17 PluralRules Objects](https://tc39.es/ecma402/#pluralrules-objects)
+-- | and [MDN Intl.PluralRules](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/PluralRules).
 module JS.Intl.PluralRules
   -- * Types
   ( PluralRules
@@ -35,7 +38,7 @@ import JS.Intl.Options.PluralRulesType (PluralRulesType)
 import JS.Intl.Options.PluralRulesType as PluralRulesType
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Plural-sensitive formatting and plural-related language rules
+-- | An object that selects a plural category (zero, one, two, few, many, other) for a value.
 foreign import data PluralRules :: Type
 
 type PluralRulesOptions =

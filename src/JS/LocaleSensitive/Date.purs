@@ -1,3 +1,5 @@
+-- | Locale-sensitive Date methods: toLocaleString, toLocaleDateString, toLocaleTimeString.
+-- | See [ECMA-402 §20.4 Properties of the Date Prototype Object](https://tc39.es/ecma402/#sec-properties-of-the-date-prototype-object).
 module JS.LocaleSensitive.Date
   ( toLocaleString
   , toLocaleDateString

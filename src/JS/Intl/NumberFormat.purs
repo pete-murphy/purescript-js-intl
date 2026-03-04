@@ -1,3 +1,6 @@
+-- | Language-sensitive number formatting (decimal, currency, percent, unit).
+-- | See [ECMA-402 §16 NumberFormat Objects](https://tc39.es/ecma402/#numberformat-objects)
+-- | and [MDN Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat).
 module JS.Intl.NumberFormat
   -- * Types
   ( NumberFormat
@@ -62,7 +65,7 @@ import JS.Intl.Options.UseGrouping (UseGrouping)
 import JS.Intl.Options.UseGrouping as UseGrouping
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | Language-sensitive number formatting
+-- | An object that formats numbers (including currency, percent, unit) by locale.
 foreign import data NumberFormat :: Type
 
 -- | Options to pass to the `NumberFormat` constructor (`new` or `new_`)

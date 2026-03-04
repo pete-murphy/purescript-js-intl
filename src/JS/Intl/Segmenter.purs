@@ -1,3 +1,6 @@
+-- | Locale-sensitive text segmentation (graphemes, words, sentences).
+-- | See [ECMA-402 §19 Segmenter Objects](https://tc39.es/ecma402/#segmenter-objects)
+-- | and [MDN Intl.Segmenter](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Segmenter).
 module JS.Intl.Segmenter
   -- * Types
   ( Segmenter
@@ -35,8 +38,8 @@ import JS.Intl.Options.LocaleMatcher (LocaleMatcher)
 import JS.Intl.Options.LocaleMatcher as LocaleMatcher
 import Unsafe.Coerce as Unsafe.Coerce
 
--- | For locale-sensitive text segmentation, enabling you to get meaningful
--- | items (graphemes, words or sentences) from a string.
+-- | An object that segments strings according to locale and granularity
+-- | (grapheme, word, or sentence).
 foreign import data Segmenter :: Type
 
 type SegmenterOptions =
