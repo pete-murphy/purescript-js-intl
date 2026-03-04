@@ -3,6 +3,8 @@ module JS.Intl.DurationFormat
   ( DurationFormat
   , DurationFormatOptions
   , ToDurationFormatOptions
+  , class DurationLike
+  , unsafeToDurationForeign
 
   -- * Constructor
   , new
@@ -25,9 +27,14 @@ import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults
 import ConvertableOptions as ConvertableOptions
 import Data.Function.Uncurried (Fn2)
 import Data.Function.Uncurried as Function.Uncurried
+import Data.Interval as Data.Interval
+import Data.Map as Map
+import Data.Maybe as Maybe
+import Data.Time.Duration as Data.Time.Duration
 import Effect (Effect)
 import Effect.Uncurried (EffectFn1, EffectFn2)
 import Effect.Uncurried as Effect.Uncurried
+import Foreign (Foreign)
 import JS.Intl.Locale (Locale)
 import JS.Intl.Options.Days (Days)
 import JS.Intl.Options.Days as Days
@@ -74,6 +81,7 @@ import JS.Intl.Options.Years as Years
 import JS.Intl.Options.YearsDisplay (YearsDisplay)
 import JS.Intl.Options.YearsDisplay as YearsDisplay
 import Prim.Row (class Union)
+import Safe.Coerce as Safe.Coerce
 import Unsafe.Coerce as Unsafe.Coerce
 
 -- | Language-sensitive duration formatting
@@ -187,6 +195,15 @@ supportedLocalesOf_
 supportedLocalesOf_ locales =
   supportedLocalesOf locales defaultOptions
 
+-- | The set of duration component fields accepted by `DurationFormat`.
+-- |
+-- | **Note:** The underlying `Temporal.Duration` API requires all values to be
+-- | **integers** (non-fractional) and all non-zero values to have the **same
+-- | sign**. Passing a non-integer (e.g. `{ seconds: 1.5 }`) or mixed signs
+-- | (e.g. `{ hours: 1.0, minutes: -30.0 }`) will throw a `RangeError` at
+-- | runtime. The fields use `Number` rather than `Int` to preserve compatibility
+-- | with upstream types (`Data.Interval.Duration`, `Data.Time.Duration`) and to
+-- | avoid narrowing the valid range to 32 bits.
 type Duration =
   ( years :: Number
   , months :: Number
@@ -200,27 +217,75 @@ type Duration =
   , nanoseconds :: Number
   )
 
+-- | Types that can be converted to a duration object suitable for
+-- | `DurationFormat`. Instances are provided for:
+-- |
+-- | - **Records** with any subset of `Duration` fields (e.g. `{ hours :: Number, minutes :: Number }`)
+-- | - **`Data.Interval.Duration`** (maps the 7 ISO 8601 components; missing components default to `0.0`)
+-- | - **`Data.Time.Duration.Days`**, **`Hours`**, **`Minutes`**, **`Seconds`**, **`Milliseconds`**
+class DurationLike a where
+  unsafeToDurationForeign :: a -> Foreign
+
+fromRecord :: forall duration r. (Union duration r Duration) => { | duration } -> Foreign
+fromRecord record = Unsafe.Coerce.unsafeCoerce record
+
+instance (Union duration r Duration) => DurationLike { | duration } where
+  unsafeToDurationForeign = fromRecord
+
+instance DurationLike Data.Interval.Duration where
+  unsafeToDurationForeign (Data.Interval.Duration duration) = do
+    let
+      at = Maybe.fromMaybe 0.0 <<< flip Map.lookup duration
+      record =
+        { years: at Data.Interval.Year
+        , months: at Data.Interval.Month
+        , weeks: at Data.Interval.Week
+        , days: at Data.Interval.Day
+        , hours: at Data.Interval.Hour
+        , minutes: at Data.Interval.Minute
+        , seconds: at Data.Interval.Second
+        }
+    fromRecord record
+
+instance DurationLike Data.Time.Duration.Days where
+  unsafeToDurationForeign days =
+    (Safe.Coerce.coerce days :: Number) # { days: _ } # fromRecord
+
+instance DurationLike Data.Time.Duration.Hours where
+  unsafeToDurationForeign hours =
+    (Safe.Coerce.coerce hours :: Number) # { hours: _ } # fromRecord
+
+instance DurationLike Data.Time.Duration.Minutes where
+  unsafeToDurationForeign minutes =
+    (Safe.Coerce.coerce minutes :: Number) # { minutes: _ } # fromRecord
+
+instance DurationLike Data.Time.Duration.Seconds where
+  unsafeToDurationForeign seconds =
+    (Safe.Coerce.coerce seconds :: Number) # { seconds: _ } # fromRecord
+
+instance DurationLike Data.Time.Duration.Milliseconds where
+  unsafeToDurationForeign milliseconds =
+    (Safe.Coerce.coerce milliseconds :: Number) # { milliseconds: _ } # fromRecord
+
 foreign import _format
-  :: forall duration
-   . Fn2
+  :: Fn2
        DurationFormat
-       { | duration } -- TODO
+       Foreign
        String
 
 -- | Format a duration
-format :: forall duration r. Union duration r Duration => DurationFormat -> { | duration } -> String
-format = Function.Uncurried.runFn2 _format
+format :: forall duration. DurationLike duration => DurationFormat -> duration -> String
+format fmt duration = Function.Uncurried.runFn2 _format fmt (unsafeToDurationForeign duration)
 
 foreign import _formatToParts
-  :: forall duration
-   . Fn2
+  :: Fn2
        DurationFormat
-       { | duration } -- TODO
+       Foreign
        (Array { type :: String, value :: String })
 
 -- | Allows locale-aware formatting of strings produced by the `DurationFormat`
-formatToParts :: forall duration r. Union duration r Duration => DurationFormat -> { | duration } -> Array { type :: String, value :: String }
-formatToParts = Function.Uncurried.runFn2 _formatToParts
+formatToParts :: forall duration. DurationLike duration => DurationFormat -> duration -> Array { type :: String, value :: String }
+formatToParts fmt duration = Function.Uncurried.runFn2 _formatToParts fmt (unsafeToDurationForeign duration)
 
 foreign import _resolvedOptions
   :: EffectFn1

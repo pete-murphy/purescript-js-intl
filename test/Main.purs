@@ -2,16 +2,22 @@ module Test.Main (main) where
 
 import Prelude
 
+import Control.Monad.Gen as MonadGen
 import Data.Array as Array
+import Data.Int as Int
 import Data.DateTime (DateTime(..))
 import Data.DateTime as DateTime
+import Data.DateTime.Gen (genDateTime)
+import Data.DateTime.Instant as Instant
 import Data.Enum as Enum
 import Data.Foldable as Foldable
+import Data.Interval as Interval
 import Data.JSDate as JSDate
 import Data.Maybe (Maybe(..))
 import Data.Maybe as Maybe
 import Data.String (Pattern(..), Replacement(..))
 import Data.String as String
+import Data.Time.Duration as Time.Duration
 import Effect (Effect)
 import Effect.Class.Console as Console
 import Foreign as Foreign
@@ -44,6 +50,8 @@ import JS.LocaleSensitive.Number as LocaleSensitive.Number
 import JS.LocaleSensitive.String as LocaleSensitive.String
 import Partial.Unsafe as Unsafe
 import Test.Assert.Extended as Test
+import Test.QuickCheck as QuickCheck
+import Test.QuickCheck ((===))
 import Unsafe.Coerce as Unsafe.Coerce
 
 main :: Effect Unit
@@ -62,6 +70,9 @@ main = do
   test_Segmenter
 
   test_LocaleSensitive
+
+  test_DateTimeLike
+  test_DurationLike
 
 -- NOTE: There are inconsistencies across platforms with how
 -- `DateTimeFormat.formatRange`, `DateTimeFormat.formatRangeToParts`,
@@ -1043,3 +1054,362 @@ test_DurationFormat = do
         , fractionalDigits: 0
         }
     }
+
+-- -------------------------------------------------------------------------- --
+-- DateTimeLike instance tests
+-- -------------------------------------------------------------------------- --
+
+test_DateTimeLike :: Effect Unit
+test_DateTimeLike = do
+  en_US <- Locale.new_ "en-US"
+
+  let
+    mkDate :: { year :: Int, month :: Int, day :: Int } -> DateTime
+    mkDate { year, month, day } = do
+      let
+        maybeDate =
+          DateTime.canonicalDate
+            <$> Enum.toEnum year
+            <*> Enum.toEnum month
+            <*> Enum.toEnum day
+        maybeDateTime =
+          maybeDate <#> \date -> DateTime date bottom
+      Unsafe.unsafePartial case maybeDateTime of
+        Just dateTime -> dateTime
+
+  let
+    date1 = mkDate { month: 12, day: 21, year: 2012 }
+    date2 = mkDate { month: 8, day: 23, year: 2013 }
+
+  format <- DateTimeFormat.new [ en_US ] { timeZone: "UTC" }
+
+  -- JSDate instance
+
+  Console.log "DateTimeFormat.format (JSDate)"
+  Test.assertEqual
+    { actual: DateTimeFormat.format format (JSDate.fromDateTime date1)
+    , expected: "12/21/2012"
+    }
+
+  Console.log "DateTimeFormat.formatToParts (JSDate)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatToParts format (JSDate.fromDateTime date1)
+    , expected:
+        [ { type: "month", value: "12" }
+        , { type: "literal", value: "/" }
+        , { type: "day", value: "21" }
+        , { type: "literal", value: "/" }
+        , { type: "year", value: "2012" }
+        ]
+    }
+
+  Console.log "DateTimeFormat.formatRange (JSDate, JSDate)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRange format (JSDate.fromDateTime date1) (JSDate.fromDateTime date2)
+        # replaceThinSpaces
+    , expected: "12/21/2012 – 8/23/2013"
+        # replaceThinSpaces
+    }
+
+  Console.log "DateTimeFormat.formatRangeToParts (JSDate, JSDate)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRangeToParts format (JSDate.fromDateTime date1) (JSDate.fromDateTime date2)
+        <#> \part -> part { value = replaceThinSpaces part.value }
+    , expected:
+        [ { type: "month", value: "12" }
+        , { type: "literal", value: "/" }
+        , { type: "day", value: "21" }
+        , { type: "literal", value: "/" }
+        , { type: "year", value: "2012" }
+        , { type: "literal", value: " – " }
+        , { type: "month", value: "8" }
+        , { type: "literal", value: "/" }
+        , { type: "day", value: "23" }
+        , { type: "literal", value: "/" }
+        , { type: "year", value: "2013" }
+        ] <#> \part -> part { value = replaceThinSpaces part.value }
+    }
+
+  -- Instant instance
+
+  Console.log "DateTimeFormat.format (Instant)"
+  Test.assertEqual
+    { actual: DateTimeFormat.format format (Instant.fromDateTime date1)
+    , expected: "12/21/2012"
+    }
+
+  Console.log "DateTimeFormat.formatToParts (Instant)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatToParts format (Instant.fromDateTime date1)
+    , expected:
+        [ { type: "month", value: "12" }
+        , { type: "literal", value: "/" }
+        , { type: "day", value: "21" }
+        , { type: "literal", value: "/" }
+        , { type: "year", value: "2012" }
+        ]
+    }
+
+  Console.log "DateTimeFormat.formatRange (Instant, Instant)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRange format (Instant.fromDateTime date1) (Instant.fromDateTime date2)
+        # replaceThinSpaces
+    , expected: "12/21/2012 – 8/23/2013"
+        # replaceThinSpaces
+    }
+
+  -- Mixed-type ranges
+
+  Console.log "DateTimeFormat.formatRange (DateTime, JSDate)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRange format date1 (JSDate.fromDateTime date2)
+        # replaceThinSpaces
+    , expected: "12/21/2012 – 8/23/2013"
+        # replaceThinSpaces
+    }
+
+  Console.log "DateTimeFormat.formatRange (JSDate, Instant)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRange format (JSDate.fromDateTime date1) (Instant.fromDateTime date2)
+        # replaceThinSpaces
+    , expected: "12/21/2012 – 8/23/2013"
+        # replaceThinSpaces
+    }
+
+  Console.log "DateTimeFormat.formatRange (Instant, DateTime)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRange format (Instant.fromDateTime date1) date2
+        # replaceThinSpaces
+    , expected: "12/21/2012 – 8/23/2013"
+        # replaceThinSpaces
+    }
+
+  Console.log "DateTimeFormat.formatRangeToParts (DateTime, JSDate)"
+  Test.assertEqual
+    { actual: DateTimeFormat.formatRangeToParts format date1 (JSDate.fromDateTime date2)
+        <#> \part -> part { value = replaceThinSpaces part.value }
+    , expected:
+        [ { type: "month", value: "12" }
+        , { type: "literal", value: "/" }
+        , { type: "day", value: "21" }
+        , { type: "literal", value: "/" }
+        , { type: "year", value: "2012" }
+        , { type: "literal", value: " – " }
+        , { type: "month", value: "8" }
+        , { type: "literal", value: "/" }
+        , { type: "day", value: "23" }
+        , { type: "literal", value: "/" }
+        , { type: "year", value: "2013" }
+        ] <#> \part -> part { value = replaceThinSpaces part.value }
+    }
+
+  -- Property: format coherence across all DateTimeLike instances
+
+  Console.log "DateTimeLike property: format (DateTime ≡ JSDate)"
+  QuickCheck.quickCheckGen do
+    dt <- genDateTime
+    pure $ DateTimeFormat.format format dt
+      === DateTimeFormat.format format (JSDate.fromDateTime dt)
+
+  Console.log "DateTimeLike property: format (DateTime ≡ Instant)"
+  QuickCheck.quickCheckGen do
+    dt <- genDateTime
+    pure $ DateTimeFormat.format format dt
+      === DateTimeFormat.format format (Instant.fromDateTime dt)
+
+  Console.log "DateTimeLike property: formatToParts (DateTime ≡ JSDate)"
+  QuickCheck.quickCheckGen do
+    dt <- genDateTime
+    pure $ DateTimeFormat.formatToParts format dt
+      === DateTimeFormat.formatToParts format (JSDate.fromDateTime dt)
+
+  Console.log "DateTimeLike property: formatToParts (DateTime ≡ Instant)"
+  QuickCheck.quickCheckGen do
+    dt <- genDateTime
+    pure $ DateTimeFormat.formatToParts format dt
+      === DateTimeFormat.formatToParts format (Instant.fromDateTime dt)
+
+  Console.log "DateTimeLike property: formatRange (DateTime ≡ JSDate)"
+  QuickCheck.quickCheckGen do
+    dt1 <- genDateTime
+    dt2 <- genDateTime
+    pure $ DateTimeFormat.formatRange format dt1 dt2
+      === DateTimeFormat.formatRange format (JSDate.fromDateTime dt1) (JSDate.fromDateTime dt2)
+
+  Console.log "DateTimeLike property: formatRange mixed (DateTime, JSDate) ≡ (DateTime, DateTime)"
+  QuickCheck.quickCheckGen do
+    dt1 <- genDateTime
+    dt2 <- genDateTime
+    pure $ DateTimeFormat.formatRange format dt1 dt2
+      === DateTimeFormat.formatRange format dt1 (JSDate.fromDateTime dt2)
+
+  Console.log "DateTimeLike property: formatRange mixed (Instant, DateTime) ≡ (DateTime, DateTime)"
+  QuickCheck.quickCheckGen do
+    dt1 <- genDateTime
+    dt2 <- genDateTime
+    pure $ DateTimeFormat.formatRange format dt1 dt2
+      === DateTimeFormat.formatRange format (Instant.fromDateTime dt1) dt2
+
+  Console.log "DateTimeLike property: formatRangeToParts (DateTime ≡ JSDate)"
+  QuickCheck.quickCheckGen do
+    dt1 <- genDateTime
+    dt2 <- genDateTime
+    pure $ DateTimeFormat.formatRangeToParts format dt1 dt2
+      === DateTimeFormat.formatRangeToParts format (JSDate.fromDateTime dt1) (JSDate.fromDateTime dt2)
+
+-- -------------------------------------------------------------------------- --
+-- DurationLike instance tests
+-- -------------------------------------------------------------------------- --
+
+test_DurationLike :: Effect Unit
+test_DurationLike = do
+  en_US <- Locale.new_ "en-US"
+  format <- DurationFormat.new [ en_US ] { numberingSystem: "latn", fractionalDigits: 0 }
+
+  -- Data.Interval.Duration instance
+
+  Console.log "DurationFormat.format (Interval.Duration, single component)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Interval.day 1.0)
+    , expected: DurationFormat.format format { days: 1.0 }
+    }
+
+  Console.log "DurationFormat.format (Interval.Duration, multiple components)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Interval.hour 2.0 <> Interval.minute 30.0)
+    , expected: DurationFormat.format format { hours: 2.0, minutes: 30.0 }
+    }
+
+  Console.log "DurationFormat.formatToParts (Interval.Duration)"
+  Test.assertEqual
+    { actual: DurationFormat.formatToParts format (Interval.day 1.0)
+    , expected:
+        [ { type: "integer", value: "1" }
+        , { type: "literal", value: " " }
+        , { type: "unit", value: "day" }
+        ]
+    }
+
+  Console.log "DurationFormat.format (Interval.Duration, sparse — only some components)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Interval.year 1.0 <> Interval.second 45.0)
+    , expected: DurationFormat.format format { years: 1.0, seconds: 45.0 }
+    }
+
+  -- Data.Time.Duration instances
+
+  Console.log "DurationFormat.format (Time.Duration.Days)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Time.Duration.Days 3.0)
+    , expected: DurationFormat.format format { days: 3.0 }
+    }
+
+  Console.log "DurationFormat.format (Time.Duration.Hours)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Time.Duration.Hours 5.0)
+    , expected: DurationFormat.format format { hours: 5.0 }
+    }
+
+  Console.log "DurationFormat.format (Time.Duration.Minutes)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Time.Duration.Minutes 45.0)
+    , expected: DurationFormat.format format { minutes: 45.0 }
+    }
+
+  Console.log "DurationFormat.format (Time.Duration.Seconds)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Time.Duration.Seconds 30.0)
+    , expected: DurationFormat.format format { seconds: 30.0 }
+    }
+
+  Console.log "DurationFormat.format (Time.Duration.Milliseconds)"
+  Test.assertEqual
+    { actual: DurationFormat.format format (Time.Duration.Milliseconds 500.0)
+    , expected: DurationFormat.format format { milliseconds: 500.0 }
+    }
+
+  Console.log "DurationFormat.formatToParts (Time.Duration.Hours)"
+  Test.assertEqual
+    { actual: DurationFormat.formatToParts format (Time.Duration.Hours 5.0)
+    , expected: DurationFormat.formatToParts format { hours: 5.0 }
+    }
+
+  -- Property: record ≡ Interval.Duration for the 7 ISO components
+
+  let genNonNegNumber hi = Int.toNumber <$> MonadGen.chooseInt 0 hi
+
+  Console.log "DurationLike property: record ≡ Interval.Duration"
+  QuickCheck.quickCheckGen do
+    years <- genNonNegNumber 10
+    months <- genNonNegNumber 11
+    weeks <- genNonNegNumber 4
+    days <- genNonNegNumber 30
+    hours <- genNonNegNumber 23
+    minutes <- genNonNegNumber 59
+    seconds <- genNonNegNumber 59
+    let
+      rec = { years, months, weeks, days, hours, minutes, seconds }
+      dur =
+        Interval.year years
+          <> Interval.month months
+          <> Interval.week weeks
+          <> Interval.day days
+          <> Interval.hour hours
+          <> Interval.minute minutes
+          <> Interval.second seconds
+    pure $ DurationFormat.format format rec
+      === DurationFormat.format format dur
+
+  Console.log "DurationLike property: formatToParts record ≡ Interval.Duration"
+  QuickCheck.quickCheckGen do
+    years <- genNonNegNumber 10
+    months <- genNonNegNumber 11
+    weeks <- genNonNegNumber 4
+    days <- genNonNegNumber 30
+    hours <- genNonNegNumber 23
+    minutes <- genNonNegNumber 59
+    seconds <- genNonNegNumber 59
+    let
+      rec = { years, months, weeks, days, hours, minutes, seconds }
+      dur =
+        Interval.year years
+          <> Interval.month months
+          <> Interval.week weeks
+          <> Interval.day days
+          <> Interval.hour hours
+          <> Interval.minute minutes
+          <> Interval.second seconds
+    pure $ DurationFormat.formatToParts format rec
+      === DurationFormat.formatToParts format dur
+
+  -- Property: Time.Duration newtypes ≡ equivalent record
+
+  Console.log "DurationLike property: Time.Duration.Days ≡ record"
+  QuickCheck.quickCheckGen do
+    n <- genNonNegNumber 100
+    pure $ DurationFormat.format format (Time.Duration.Days n)
+      === DurationFormat.format format { days: n }
+
+  Console.log "DurationLike property: Time.Duration.Hours ≡ record"
+  QuickCheck.quickCheckGen do
+    n <- genNonNegNumber 100
+    pure $ DurationFormat.format format (Time.Duration.Hours n)
+      === DurationFormat.format format { hours: n }
+
+  Console.log "DurationLike property: Time.Duration.Minutes ≡ record"
+  QuickCheck.quickCheckGen do
+    n <- genNonNegNumber 100
+    pure $ DurationFormat.format format (Time.Duration.Minutes n)
+      === DurationFormat.format format { minutes: n }
+
+  Console.log "DurationLike property: Time.Duration.Seconds ≡ record"
+  QuickCheck.quickCheckGen do
+    n <- genNonNegNumber 100
+    pure $ DurationFormat.format format (Time.Duration.Seconds n)
+      === DurationFormat.format format { seconds: n }
+
+  Console.log "DurationLike property: Time.Duration.Milliseconds ≡ record"
+  QuickCheck.quickCheckGen do
+    n <- genNonNegNumber 100
+    pure $ DurationFormat.format format (Time.Duration.Milliseconds n)
+      === DurationFormat.format format { milliseconds: n }

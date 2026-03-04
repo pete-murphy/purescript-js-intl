@@ -25,12 +25,15 @@ package:
     dependencies:
       - assert
       - console
+      - datetime
       - debug
       - effect
       - foldable-traversable
       - functions
       - js-date
+      - ordered-collections
       - prelude
+      - quickcheck
       - record
       - strings
       - unsafe-coerce

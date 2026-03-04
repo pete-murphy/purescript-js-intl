@@ -3,6 +3,8 @@ module JS.Intl.DateTimeFormat
   ( DateTimeFormat
   , DateTimeFormatOptions
   , ToDateTimeFormatOptions
+  , class DateTimeLike
+  , unsafeToDateTimeForeign
 
   -- * Constructor
   , new
@@ -26,6 +28,7 @@ import Prelude
 import ConvertableOptions (class ConvertOption, class ConvertOptionsWithDefaults)
 import ConvertableOptions as ConvertableOptions
 import Data.DateTime (DateTime)
+import Data.DateTime.Instant as Data.DateTime.Instant
 import Data.Function.Uncurried (Fn2, Fn3)
 import Data.Function.Uncurried as Function.Uncurried
 import Data.JSDate (JSDate)
@@ -266,79 +269,101 @@ supportedLocalesOf_
 supportedLocalesOf_ locales =
   supportedLocalesOf locales {}
 
+class DateTimeLike a where
+  unsafeToDateTimeForeign :: a -> Foreign
+
+instance DateTimeLike DateTime where
+  unsafeToDateTimeForeign = Unsafe.Coerce.unsafeCoerce <<< JSDate.fromDateTime
+
+instance DateTimeLike Data.DateTime.Instant.Instant where
+  unsafeToDateTimeForeign = unsafeToDateTimeForeign <<< Data.DateTime.Instant.toDateTime
+
+instance DateTimeLike JSDate where
+  unsafeToDateTimeForeign = Unsafe.Coerce.unsafeCoerce
+
 foreign import _format
   :: Fn2
        DateTimeFormat
-       JSDate
+       Foreign
        String
 
 -- | Formats a date according to the locale and formatting options of the
 -- | `DateTimeFormat`
 format
-  :: DateTimeFormat
-  -> DateTime
+  :: forall dateTime
+   . DateTimeLike dateTime
+  => DateTimeFormat
+  -> dateTime
   -> String
-format fmt dateTime = Function.Uncurried.runFn2 _format fmt (JSDate.fromDateTime dateTime)
+format fmt dateTime = Function.Uncurried.runFn2 _format fmt (unsafeToDateTimeForeign dateTime)
 
 foreign import _formatRange
   :: Fn3
        DateTimeFormat
-       JSDate
-       JSDate
+       Foreign
+       Foreign
        String
 
 -- | Formats a date range in the most concise way based on the locales and
 -- | options provided for this `DateTimeFormat` instance
 formatRange
-  :: DateTimeFormat
-  -> DateTime
-  -> DateTime
+  :: forall start end
+   . DateTimeLike start
+  => DateTimeLike end
+  => DateTimeFormat
+  -> start
+  -> end
   -> String
-formatRange fmt dateTime1 dateTime2 =
+formatRange fmt start end =
   Function.Uncurried.runFn3
     _formatRange
     fmt
-    (JSDate.fromDateTime dateTime1)
-    (JSDate.fromDateTime dateTime2)
+    (unsafeToDateTimeForeign start)
+    (unsafeToDateTimeForeign end)
 
 foreign import _formatRangeToParts
   :: Fn3
        DateTimeFormat
-       JSDate
-       JSDate
+       Foreign
+       Foreign
        (Array { type :: String, value :: String })
 
 -- | Returns an array of locale-specific tokens representing each part of the
 -- | formatted date range produced by the `DateTimeFormat` instance
 formatRangeToParts
-  :: DateTimeFormat
-  -> DateTime
-  -> DateTime
+  :: forall start end
+   . DateTimeLike start
+  => DateTimeLike end
+  => DateTimeFormat
+  -> start
+  -> end
   -> Array { type :: String, value :: String }
-formatRangeToParts fmt dateTime1 dateTime2 =
+formatRangeToParts fmt start end =
   Function.Uncurried.runFn3
     _formatRangeToParts
     fmt
-    (JSDate.fromDateTime dateTime1)
-    (JSDate.fromDateTime dateTime2)
+    (unsafeToDateTimeForeign start)
+    (unsafeToDateTimeForeign end)
 
 foreign import _formatToParts
   :: Fn2
        DateTimeFormat
-       JSDate
+       Foreign
        (Array { type :: String, value :: String })
 
 -- | Returns an array of locale-specific tokens representing each part of the
 -- | formatted date produced by the `DateTimeFormat` instance
 formatToParts
-  :: DateTimeFormat
-  -> DateTime
+  :: forall dateTime
+   . DateTimeLike dateTime
+  => DateTimeFormat
+  -> dateTime
   -> Array { type :: String, value :: String }
 formatToParts fmt dateTime =
   Function.Uncurried.runFn2
     _formatToParts
     fmt
-    (JSDate.fromDateTime dateTime)
+    (unsafeToDateTimeForeign dateTime)
 
 foreign import _resolvedOptions
   :: EffectFn1
